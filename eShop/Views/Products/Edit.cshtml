@@ -41,7 +41,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="category" class="control-label"></label>
-                <select asp-for="category" class="form-control"></select>
+                <select asp-for="category" class="form-control" asp-items="@ViewBag.CategoryList"></select>
                 <span asp-validation-for="category" class="text-danger"></span>
             </div>
             <div class="form-group">

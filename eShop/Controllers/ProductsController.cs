@@ -91,6 +91,15 @@ namespace eShop.Controllers
             {
                 return NotFound();
             }
+
+            List<SelectListItem> list = new List<SelectListItem>();
+
+            foreach (int i in Enum.GetValues(typeof(Categories)))
+            {
+                list.Add(new SelectListItem { Value=Enum.GetName(typeof(Categories), i), Text=Enum.GetName(typeof(Categories), i) });
+            }
+            ViewBag.CategoryList = list;
+
             return View(product);
         }
 
