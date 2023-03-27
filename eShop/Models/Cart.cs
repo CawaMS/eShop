@@ -4,6 +4,8 @@ public class Cart:BaseEntity
 {
     public string? BuyerId { get; private set; }
     private readonly List<CartItem> _items = new List<CartItem>();
+    public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();
+
 
     public int TotalItems => _items.Sum(i => i.Quantity);
 
@@ -12,14 +14,15 @@ public class Cart:BaseEntity
         BuyerId = buyerId;
     }
 
+
     public void AddItem(int itemId, decimal unitPrice, int quantity = 1)
     {
-        if (!_items.Any(i => i.ItemId == itemId))
+        if (!Items.Any(i => i.ItemId == itemId))
         {
-            _items.Add(new CartItem(itemId, quantity, unitPrice, this.Id));
+            _items.Add(new CartItem(itemId, quantity, unitPrice));
             return;
         }
-        var existingItem = _items.First(i => i.ItemId == itemId);
+        var existingItem = Items.First(i => i.ItemId == itemId);
         existingItem.AddQuantity(quantity);
     }
 
