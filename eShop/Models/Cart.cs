@@ -2,7 +2,7 @@
 
 public class Cart:BaseEntity
 {
-    public string? BuyerId { get; private set; }
+    public string BuyerId { get; private set; }
     private readonly List<CartItem> _items = new List<CartItem>();
     public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();
 

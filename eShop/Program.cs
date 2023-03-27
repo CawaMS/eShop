@@ -1,4 +1,6 @@
 using eShop.Data;
+using eShop.Interfaces;
+using eShop.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<ICartService,CartServiceDB>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
