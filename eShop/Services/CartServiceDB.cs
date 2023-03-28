@@ -1,6 +1,7 @@
 ﻿using eShop.Data;
 using eShop.Interfaces;
 using eShop.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace eShop.Services;
 
@@ -22,7 +23,19 @@ public class CartServiceDB : ICartService
             await _context.carts.AddAsync(cart);
         }
 
-        cart.AddItem(itemId,price,quantity);
+        //cart.AddItem(itemId,price,quantity);
+
+        var cartItem = _context.cartItems.Where(item => item.CartId == cart.Id).Where(item => item.ItemId == itemId).FirstOrDefault();
+        if (cartItem == null)
+        {
+            cart.AddItem(itemId, price, quantity);
+        }
+        else 
+        {
+            cartItem.AddQuantity(1);
+            _context.cartItems.Update(cartItem);
+        }
+        
 
         _context.SaveChanges();
 

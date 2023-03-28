@@ -10,25 +10,29 @@ namespace eShop.Controllers
     {
         private readonly ICartService _cartService;
         private readonly IProductService _productService;
+        private readonly ICartItemService _cartItemService;
         // GET: CartsController
 
-        public CartsController(ICartService cartService, IProductService productService)
+        public CartsController(ICartService cartService, IProductService productService, ICartItemService cartItemService)
         { 
             _cartService = cartService;
             _productService = productService;
+            _cartItemService = cartItemService;
         }
         
         public async Task<ActionResult> Index()
         {
+            List<ShoppingCartItem> ShoppingList = new List<ShoppingCartItem>();
             var cart = await _cartService.GetCartAsync(GetOrSetBasketCookieAndUserName());
             if (cart == null)
             {
-                return View();
+                return View(ShoppingList);
             }
 
-            List<ShoppingCartItem> ShoppingList = new List<ShoppingCartItem>();
+            
+            List<CartItem> CartItemList = await _cartItemService.GetCartItemAsync(cart.Id);
 
-            foreach (var item in cart.Items)
+            foreach (var item in CartItemList)
             {
                 var product = await _productService.GetProductByIdAsync(item.ItemId);
                 if (product == null)

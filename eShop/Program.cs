@@ -26,6 +26,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ICartService,CartServiceDB>();
+builder.Services.AddScoped<ICartItemService, CartItemServiceDB>();
 builder.Services.AddScoped<IProductService,ProductServiceDB>();
 
 builder.Services.Configure<IdentityOptions>(options =>
@@ -58,6 +59,15 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.SlidingExpiration = true;
+});
+
+builder.Services.AddMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromSeconds(10);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 
 var app = builder.Build();
@@ -102,6 +112,8 @@ app.UseRouting();
 
 app.UseAuthorization();
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
