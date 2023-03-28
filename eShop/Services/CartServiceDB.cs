@@ -23,7 +23,7 @@ public class CartServiceDB : ICartService
         }
 
         cart.AddItem(itemId,price,quantity);
-        _context.Update(cart);
+        //await Task.Run(() => _context.carts.Update(cart));
 
         _context.SaveChanges();
 
