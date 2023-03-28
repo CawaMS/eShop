@@ -1,5 +1,6 @@
 ﻿using eShop.Interfaces;
 using eShop.Models;
+using eShop.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,9 +18,27 @@ namespace eShop.Controllers
             _productService = productService;
         }
         
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            return View();
+            var cart = await _cartService.GetCartAsync(GetOrSetBasketCookieAndUserName());
+            if (cart == null)
+            {
+                return View();
+            }
+
+            List<ShoppingCartItem> ShoppingList = new List<ShoppingCartItem>();
+
+            foreach (var item in cart.Items)
+            {
+                var product = await _productService.GetProductByIdAsync(item.ItemId);
+                if (product == null)
+                {
+                    return View();
+                }
+                ShoppingList.Add(new ShoppingCartItem { Name=product.Name, Price=product.Price, Quantity=item.Quantity });
+            }
+
+            return View(ShoppingList);
         }
 
         // GET: CartsController/Details/5
@@ -36,13 +55,13 @@ namespace eShop.Controllers
         {
             if (productDetails?.Id == null)
             {
-                return RedirectToPage("/Index");
+                return RedirectToAction("Index","Home");
             }
 
             var item = await _productService.GetProductByIdAsync(productDetails.Id);
             if (item == null)
             {
-                return RedirectToPage("/Index");
+                return RedirectToAction("Index", "Home");
             }
 
             var username = GetOrSetBasketCookieAndUserName();
@@ -51,7 +70,7 @@ namespace eShop.Controllers
 
             //TODO: get list of all cart items in the current shopping cart
 
-            return RedirectToPage("/Index");
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: CartsController/Edit/5

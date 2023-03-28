@@ -23,7 +23,6 @@ public class CartServiceDB : ICartService
         }
 
         cart.AddItem(itemId,price,quantity);
-        //await Task.Run(() => _context.carts.Update(cart));
 
         _context.SaveChanges();
 
@@ -31,12 +30,19 @@ public class CartServiceDB : ICartService
 
     }
 
-    public Task DeleteBasketAsync(int basketId)
+    public async Task<Cart?> GetCartAsync(string username)
+    {
+        var cart = await Task.Run(() => _context.carts.Where(cart => cart.BuyerId == username).FirstOrDefault());
+
+        return cart;
+    }
+
+    public Task DeleteCartAsync(int cartId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Cart> SetQuantities(int basketId, Dictionary<string, int> quantities)
+    public Task<Cart> SetQuantities(int cartId, Dictionary<string, int> quantities)
     {
         throw new NotImplementedException();
     }

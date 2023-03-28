@@ -9,7 +9,8 @@ public interface ICartService
 {
     Task TransferCartAsync(string anonymousId, string userName);
     Task<Cart> AddItemToCart(string username, int catalogItemId, decimal price, int quantity = 1);
-    Task<Cart> SetQuantities(int basketId, Dictionary<string, int> quantities);
-    Task DeleteBasketAsync(int basketId);
+    Task<Cart> SetQuantities(int cartId, Dictionary<string, int> quantities);
+    Task DeleteCartAsync(int cartId);
+    Task<Cart?> GetCartAsync(string cartId);
 
 }
