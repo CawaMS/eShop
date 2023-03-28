@@ -18,11 +18,15 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddMvc();
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
 
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ICartService,CartServiceDB>();
+builder.Services.AddScoped<IProductService,ProductServiceDB>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

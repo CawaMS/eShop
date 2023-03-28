@@ -15,9 +15,10 @@
         @foreach (var item in Model)
         {
             <div class="card">
-                <img src="@item.Image"/>
+                <img src="@item.Image" />
                 <h4><b>@item.Name</b></h4>
                 <p>@item.Price</p>
+                <input class="button" value="Add to cart" type="submit"/>
             </div>
         }
 </div>
