@@ -3,6 +3,7 @@ using eShop.Models;
 using eShop.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace eShop.Controllers
 {
@@ -57,6 +58,7 @@ namespace eShop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product productDetails)
         {
+            Stopwatch sw = Stopwatch.StartNew();
             if (productDetails?.Id == null)
             {
                 return RedirectToAction("Index","Home");
@@ -65,6 +67,7 @@ namespace eShop.Controllers
             var item = await _productService.GetProductByIdAsync(productDetails.Id);
             if (item == null)
             {
+                ViewData["messageFailed"] = "Failed to add item - not found";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -72,9 +75,15 @@ namespace eShop.Controllers
             var cart = await _cartService.AddItemToCart(username,
                 productDetails.Id, item.Price);
 
-            //TODO: get list of all cart items in the current shopping cart
 
-            return RedirectToAction("Index", "Home");
+            sw.Stop();
+            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
+
+            ViewData["AddToCartTimeMS"] = ms;
+            ViewData["messageSuccess"] = $"Successful - added item {item.Name} ";
+
+            return View(item);
+            //return RedirectToAction("Index", "Home");
         }
 
         // GET: CartsController/Edit/5
