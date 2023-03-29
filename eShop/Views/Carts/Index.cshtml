@@ -5,6 +5,12 @@
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
 
+<div>
+    <h4>
+        Shopping cart page load time: @ViewData["cartLoadTime"] milli-seconds
+    </h4>
+</div>
+
 <table class="table">
     <thead>
         <tr>
@@ -30,3 +36,7 @@
         }
     </tbody>
 </table>
+
+<div>
+    <button>Check out</button>
+</div>

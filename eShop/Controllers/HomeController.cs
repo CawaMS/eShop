@@ -1,5 +1,7 @@
 ﻿using eShop.Data;
+using eShop.Interfaces;
 using eShop.Models;
+using eShop.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -9,19 +11,27 @@ namespace eShop.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly eShopContext _context;
+        private readonly IProductService _productService;
 
-        public HomeController(ILogger<HomeController> logger, eShopContext context)
+        public HomeController(ILogger<HomeController> logger, IProductService productService)
         {
             _logger = logger;
-            _context = context;
+            _productService = productService;
+
         }
 
         public async Task<IActionResult> IndexAsync()
         {
-            return _context.Product != null ?
-                        View(await _context.Product.ToListAsync()) :
-                        Problem("Entity set 'eShopContext.Product'  is null.");
+            Stopwatch sw = Stopwatch.StartNew();
+
+            List<Product> productList = await _productService.GetAllProductsAsync();
+
+            sw.Stop();
+            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
+
+            ViewData["pageLoadTime"] = ms;
+
+            return View(productList) ;
         }
 
         public IActionResult Privacy()

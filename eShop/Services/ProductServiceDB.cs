@@ -8,11 +8,15 @@ namespace eShop.Services
     {
         private readonly eShopContext _context;
 
-        public ProductServiceDB(eShopContext context) {  _context = context; }
+        public ProductServiceDB(eShopContext context) 
+        {  
+            _context = context; 
+        }
 
-        public Task<List<Product>> GetAllProductsAsync()
+        public async Task<List<Product>> GetAllProductsAsync()
         {
-            throw new NotImplementedException();
+            if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
+            return await Task.Run(() => _context.Product.ToList());
         }
 
         public async Task<Product?> GetProductByIdAsync(int productId)

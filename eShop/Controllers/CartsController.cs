@@ -23,6 +23,8 @@ namespace eShop.Controllers
         
         public async Task<ActionResult> Index()
         {
+            Stopwatch sw = Stopwatch.StartNew();
+
             List<ShoppingCartItem> ShoppingList = new List<ShoppingCartItem>();
             var cart = await _cartService.GetCartAsync(GetOrSetBasketCookieAndUserName());
             if (cart == null)
@@ -42,6 +44,11 @@ namespace eShop.Controllers
                 }
                 ShoppingList.Add(new ShoppingCartItem { Name=product.Name, Price=product.Price, Quantity=item.Quantity });
             }
+
+            sw.Stop();
+            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
+
+            ViewData["cartLoadTime"] = ms;
 
             return View(ShoppingList);
         }
