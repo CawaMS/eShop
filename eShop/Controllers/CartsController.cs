@@ -42,7 +42,7 @@ namespace eShop.Controllers
                 {
                     return View();
                 }
-                ShoppingList.Add(new ShoppingCartItem { Name=product.Name, Price=product.Price, Quantity=item.Quantity });
+                ShoppingList.Add(new ShoppingCartItem { Name=product.Name, Price=product.Price, Quantity=item.Quantity, CartId=cart.Id });
             }
 
             sw.Stop();
@@ -114,25 +114,22 @@ namespace eShop.Controllers
             }
         }
 
-        // GET: CartsController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
 
         // POST: CartsController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(int CartId)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            Stopwatch sw = Stopwatch.StartNew();
+            await _cartService.DeleteCartAsync(CartId);
+
+            sw.Stop();
+            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
+
+            ViewData["cartDeleteTime"] = ms;
+
+            return View();
+            
         }
 
         private string GetOrSetBasketCookieAndUserName()

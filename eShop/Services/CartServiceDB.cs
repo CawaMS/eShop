@@ -51,9 +51,20 @@ public class CartServiceDB : ICartService
         return cart;
     }
 
-    public Task DeleteCartAsync(int cartId)
+    public async Task DeleteCartAsync(int cartId)
     {
-        throw new NotImplementedException();
+        List<CartItem> cartItemsList = _context.cartItems.Where(item => item.CartId == cartId).ToList();
+
+        if (cartItemsList.Count > 0)
+        {
+            foreach (var _cartItem in cartItemsList)
+            {
+                await _context.cartItems.Where(item => item.Id == _cartItem.Id).ExecuteDeleteAsync();
+            }
+        }
+
+        await _context.carts.Where(_cart => _cart.Id == cartId).ExecuteDeleteAsync();
+
     }
 
     public Task<Cart> SetQuantities(int cartId, Dictionary<string, int> quantities)

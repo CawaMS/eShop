@@ -38,5 +38,16 @@
 </table>
 
 <div>
-    <button>Check out</button>
+    @{
+        var _item = Model.Where(item => item.Quantity != 0).FirstOrDefault();
+        if (_item != null)
+        {
+            <form asp-controller="Carts" asp-action="Delete">
+                <input class="button" value="Check Out" type="submit" />
+                <input type="hidden" asp-for="@_item.CartId" name="CartId" />
+            </form>
+        }
+
+    }
+
 </div>
