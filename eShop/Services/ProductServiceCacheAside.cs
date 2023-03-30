@@ -2,9 +2,11 @@
 using eShop.Interfaces;
 using eShop.Models;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.IdentityModel.Tokens;
 using NuGet.Protocol;
 using System.Text;
 using System.Text.Json;
+using eShop.Helpers;
 
 namespace eShop.Services
 {
@@ -21,46 +23,46 @@ namespace eShop.Services
 
         public async Task<List<Product>> GetAllProductsAsync()
         {
-            //string? productListFromCache = _cache.GetString(CacheKeyConstants.AllProductKey);
-            //if (productListFromCache == null)
-            //{
-            //    if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
-            //    List<Product> AllProductList = await Task.Run(() => _context.Product.ToList());
-            //    var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30));
-            //    _cache.Set(CacheKeyConstants.AllProductKey, ProductListToByteArray(AllProductList), options);
-            //    return await Task.Run(() => _context.Product.ToList());
-            //}
+            var bytesFromCache = await _cache.GetAsync(CacheKeyConstants.AllProductKey);
+            if (bytesFromCache.IsNullOrEmpty())
+            {
+                if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
+                Console.WriteLine("Fetching from redis");
+                List<Product> AllProductList = await Task.Run(() => _context.Product.ToList());
+                var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
+                byte[] AllProductBytes = ConvertData<Product>.ProductListToByteArray(AllProductList);
+                _cache.Set(CacheKeyConstants.AllProductKey, AllProductBytes, options);
+                return ConvertData<Product>.ByteArrayToProductList(AllProductBytes);
+            }
 
 
-            return new List<Product>();
-        }
+            return ConvertData<Product>.ByteArrayToProductList(bytesFromCache);
+         }
 
-        public Task<Product?> GetProductByIdAsync(int productId)
+        public async Task<Product?> GetProductByIdAsync(int productId)
         {
-            throw new NotImplementedException();
+            var bytesFromCache = await _cache.GetAsync(CacheKeyConstants.ProductPrefix + productId);
+            if (bytesFromCache.IsNullOrEmpty())
+            {
+                var productById = await Task.Run(() => _context.Product.Where(product => product.Id == productId).FirstOrDefault());
+                if (productById == null)
+                {
+                    return null;
+                }
+                var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
+                byte[] ProductByIdBytes = ConvertData<Product>.ProductToByteArray(productById);
+                _cache.Set(CacheKeyConstants.ProductPrefix + productId, ProductByIdBytes, options);
+                return ConvertData<Product>.ByteArrayToProduct(ProductByIdBytes);
+            }
+
+            return ConvertData<Product>.ByteArrayToProduct(bytesFromCache);
         }
 
-        private List<Product> ByteArrayToProductList(byte[] inputByteArray)
-        {
-            using MemoryStream ms = new MemoryStream(inputByteArray);
-
-            return JsonSerializer.Deserialize<List<Product>>(ms);
-        }
-
-        private byte[] ProductListToByteArray(List<Product> inputProductList)
-        {
-
-            Encoding u8 = Encoding.UTF8;
-            byte[] result = inputProductList.SelectMany(item => u8.GetBytes(item.ToString())).ToArray();
-
-            return result;
-
-
-        }
     }
 
     public static class CacheKeyConstants
     {
         public const string AllProductKey = "eShopAllProducts";
+        public const string ProductPrefix = "productId_";
     }
 }
