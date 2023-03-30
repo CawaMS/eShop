@@ -25,9 +25,25 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
+    options.InstanceName = "eShopCache";
+});
+
+//builder.Services.AddMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromSeconds(10);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+
 builder.Services.AddScoped<ICartService,CartServiceDB>();
 builder.Services.AddScoped<ICartItemService, CartItemServiceDB>();
-builder.Services.AddScoped<IProductService,ProductServiceDB>();
+builder.Services.AddScoped<IProductService,ProductServiceCacheAside>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -59,15 +75,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.SlidingExpiration = true;
-});
-
-builder.Services.AddMemoryCache();
-
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromSeconds(10);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
 });
 
 var app = builder.Build();
