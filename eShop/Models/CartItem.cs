@@ -2,6 +2,7 @@
 
 namespace eShop.Models;
 
+[Serializable]
 public class CartItem : BaseEntity
 {
     public decimal UnitPrice { get; private set; }

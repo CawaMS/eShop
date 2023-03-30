@@ -1,5 +1,6 @@
 ﻿namespace eShop.Models;
 
+[Serializable]
 public class Cart:BaseEntity
 {
     public string BuyerId { get; private set; }
