@@ -32,8 +32,8 @@ namespace eShop.Controllers
                 return View(ShoppingList);
             }
 
-            
-            List<CartItem> CartItemList = await _cartItemService.GetCartItemAsync(cart.Id);
+            int cartId = await _cartService.GetCartId(cart);
+            List<CartItem> CartItemList = await _cartItemService.GetCartItemAsync(cartId);
 
             foreach (var item in CartItemList)
             {

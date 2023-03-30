@@ -41,5 +41,9 @@ public class Cart:BaseEntity
         BuyerId = buyerId;
     }
 
+    public void setId(int id)
+    { 
+        this.Id = id;
+    }
 
 }

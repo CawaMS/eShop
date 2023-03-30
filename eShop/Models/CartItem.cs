@@ -26,4 +26,9 @@ public class CartItem : BaseEntity
         Quantity = quantity;
     }
 
+    public void SetCartId(int _cardId)
+    {
+        CartId = _cardId;
+    }
+
 }

@@ -18,7 +18,13 @@ namespace eShop.Services
         {
 
             string username = await _cache.GetStringAsync(cartId.ToString());
-            List<CartItem> cartItems = ConvertData<CartItem>.ByteArrayToObjectList(await _cache.GetAsync(CacheKeyConstants.GetCartItemListKey(username)));
+            if(username == null)
+            { 
+                return new List<CartItem>();
+            }
+            byte[] cartItemslistBytes = await _cache.GetAsync(CacheKeyConstants.GetCartItemListKey(username));
+            List<CartItem> cartItems = ConvertData<CartItem>.ByteArrayToObjectList(cartItemslistBytes);
+
             return cartItems;
         }
     }

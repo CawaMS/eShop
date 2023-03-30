@@ -12,5 +12,6 @@ public interface ICartService
     Task<Cart> SetQuantities(int cartId, Dictionary<string, int> quantities);
     Task DeleteCartAsync(int cartId);
     Task<Cart?> GetCartAsync(string cartId);
+    Task<int> GetCartId(Cart cart);
 
 }

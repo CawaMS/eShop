@@ -111,4 +111,9 @@ public class CartServiceDB : ICartService
         
 
     }
+
+    public async Task<int> GetCartId(Cart cart)
+    {
+        return cart.Id;
+    }
 }
