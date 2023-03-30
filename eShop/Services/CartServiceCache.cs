@@ -30,6 +30,10 @@ namespace eShop.Services
 
                 await _cache.SetStringAsync(cartId.ToString(), username, options);
                 await _cache.SetStringAsync(username, cartId.ToString(), options);
+                List<CartItem> cartItemList = new List<CartItem>();
+                cartItemList.Add(new CartItem(itemId, quantity, price));
+                byte[] newCartItemListBytes = ConvertData<CartItem>.ObjectListToByteArray(cartItemList);
+                await _cache.SetAsync(CacheKeyConstants.GetCartItemListKey(username),newCartItemListBytes, options);
             }
             else 
             {
@@ -71,7 +75,12 @@ namespace eShop.Services
         public async Task<Cart?> GetCartAsync(string username)
         {
             Cart cart = new Cart(username);
-            List<CartItem> cartItemList = ConvertData<CartItem>.ByteArrayToObjectList(await _cache.GetAsync(CacheKeyConstants.GetCartItemListKey(username)));
+            byte[] cartItemListBytes = await _cache.GetAsync(CacheKeyConstants.GetCartItemListKey(username));
+            if (cartItemListBytes.IsNullOrEmpty())
+            {
+                return cart;
+            }
+            List<CartItem> cartItemList = ConvertData<CartItem>.ByteArrayToObjectList(cartItemListBytes);
             foreach (var item in cartItemList)
             {
                 cart.CopyItem(item);
