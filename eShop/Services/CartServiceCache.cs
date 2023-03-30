@@ -43,7 +43,7 @@ namespace eShop.Services
                 CartItem cartItem = cartItemList.Where(item => item.ItemId == itemId).FirstOrDefault();
                 if (cartItem != null)
                 {
-                    CartItem newCartItem = new CartItem(cartItem.Id, cartItem.Quantity+1, cartItem.UnitPrice);
+                    CartItem newCartItem = new CartItem(itemId, cartItem.Quantity+1, price);
                     string _cartIdString = await _cache.GetStringAsync(username);
                     _cartId = Int32.Parse(_cartIdString);
                     newCartItem.SetCartId(_cartId);
