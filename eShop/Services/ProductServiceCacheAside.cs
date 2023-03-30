@@ -30,13 +30,13 @@ namespace eShop.Services
                 Console.WriteLine("Fetching from redis");
                 List<Product> AllProductList = await Task.Run(() => _context.Product.ToList());
                 var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
-                byte[] AllProductBytes = ConvertData<Product>.ProductListToByteArray(AllProductList);
-                _cache.Set(CacheKeyConstants.AllProductKey, AllProductBytes, options);
-                return ConvertData<Product>.ByteArrayToProductList(AllProductBytes);
+                byte[] AllProductBytes = ConvertData<Product>.ObjectListToByteArray(AllProductList);
+                await _cache.SetAsync(CacheKeyConstants.AllProductKey, AllProductBytes, options);
+                return ConvertData<Product>.ByteArrayToObjectList(AllProductBytes);
             }
 
 
-            return ConvertData<Product>.ByteArrayToProductList(bytesFromCache);
+            return ConvertData<Product>.ByteArrayToObjectList(bytesFromCache);
          }
 
         public async Task<Product?> GetProductByIdAsync(int productId)
@@ -50,19 +50,15 @@ namespace eShop.Services
                     return null;
                 }
                 var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
-                byte[] ProductByIdBytes = ConvertData<Product>.ProductToByteArray(productById);
-                _cache.Set(CacheKeyConstants.ProductPrefix + productId, ProductByIdBytes, options);
-                return ConvertData<Product>.ByteArrayToProduct(ProductByIdBytes);
+                byte[] ProductByIdBytes = ConvertData<Product>.ObjectToByteArray(productById);
+                await _cache.SetAsync(CacheKeyConstants.ProductPrefix + productId, ProductByIdBytes, options);
+                return ConvertData<Product>.ByteArrayToObject(ProductByIdBytes);
             }
 
-            return ConvertData<Product>.ByteArrayToProduct(bytesFromCache);
+            return ConvertData<Product>.ByteArrayToObject(bytesFromCache);
         }
 
     }
 
-    public static class CacheKeyConstants
-    {
-        public const string AllProductKey = "eShopAllProducts";
-        public const string ProductPrefix = "productId_";
-    }
+
 }

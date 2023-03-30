@@ -26,6 +26,11 @@ public class Cart:BaseEntity
         existingItem.AddQuantity(quantity);
     }
 
+    public void CopyItem(CartItem item)
+    {
+        _items.Add(item);
+    }
+
     public void RemoveEmptyItems()
     {
         _items.RemoveAll(i => i.Quantity == 0);

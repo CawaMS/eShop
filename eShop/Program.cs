@@ -41,8 +41,8 @@ builder.Services.AddSession(options =>
 });
 
 
-builder.Services.AddScoped<ICartService,CartServiceDB>();
-builder.Services.AddScoped<ICartItemService, CartItemServiceDB>();
+builder.Services.AddScoped<ICartService,CartServiceCache>();
+builder.Services.AddScoped<ICartItemService, CartItemServiceCache>();
 builder.Services.AddScoped<IProductService,ProductServiceCacheAside>();
 
 builder.Services.Configure<IdentityOptions>(options =>
