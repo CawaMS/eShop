@@ -44,19 +44,17 @@ namespace eShop.Services
                 if (cartItem != null)
                 {
                     CartItem newCartItem = new CartItem(itemId, cartItem.Quantity+1, price);
-                    string _cartIdString = await _cache.GetStringAsync(username);
-                    _cartId = Int32.Parse(_cartIdString);
-                    newCartItem.SetCartId(_cartId);
+                    _cartId = cartItem.Id;
                     cartItemList.Remove(cartItem);
                     cartItemList.Add(newCartItem);
                 }
                 else
                 {
                     CartItem newCartItem = new CartItem(itemId, 1, price);
-                    string cardIdString = await _cache.GetStringAsync(username);
-                    if(cardIdString != null)
+                    string cartIdString = await _cache.GetStringAsync(username);
+                    if(cartIdString != null)
                     {
-                        int cartId = Int32.Parse(cardIdString);
+                        int cartId = Int32.Parse(cartIdString);
                         newCartItem.SetCartId(cartId);
                     }
 
@@ -125,7 +123,9 @@ namespace eShop.Services
 
             string anonymousId = await _cache.GetStringAsync(anonymousName);
             if(anonymousId.IsNullOrEmpty())
-            { return; }
+            { 
+                return; 
+            }
             byte[] cartItemListBytes = await _cache.GetAsync(CacheKeyConstants.GetCartItemListKey(anonymousName));
             if (!cartItemListBytes.IsNullOrEmpty())
             {

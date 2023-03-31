@@ -25,16 +25,7 @@ namespace eShop.Services
             byte[] cartItemslistBytes = await _cache.GetAsync(CacheKeyConstants.GetCartItemListKey(username));
             List<CartItem> cartItems = ConvertData<CartItem>.ByteArrayToObjectList(cartItemslistBytes);
 
-            List<CartItem> _returnList = new List<CartItem>();
-
-            foreach (var item in cartItems)
-            {
-                CartItem _item = new CartItem(item.ItemId, item.Quantity, item.UnitPrice);
-                _item.SetCartId(cartId);
-                _returnList.Add(_item);
-            }
-
-            return _returnList;
+            return cartItems;
         }
     }
 }

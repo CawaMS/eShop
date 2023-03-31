@@ -8,7 +8,8 @@ public class CartItem : BaseEntity
     public decimal UnitPrice { get; private set; }
     public int Quantity { get; private set; }
     public int ItemId { get; private set; }
-    public int CartId { get; private set; }
+    //public int CartId { get; private set; }
+    public int CartId { get; set; }
 
     public CartItem(int itemId, int quantity, decimal unitPrice)
     {
