@@ -18,6 +18,7 @@ namespace eShop.Controllers
             _logger = logger;
             _productService = productService;
 
+
         }
 
         public async Task<IActionResult> IndexAsync()
@@ -43,6 +44,16 @@ namespace eShop.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            Product _product = await _productService.GetProductByIdAsync(id);
+            if (_product == null)
+            {
+                return NotFound();
+            }
+            return View(_product);
         }
     }
 }
