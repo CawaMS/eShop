@@ -22,3 +22,8 @@ public static class CacheKeyConstants
         return "cartItemList_&_" + userName;
     }
 }
+
+public static class SessionConstants
+{
+    public const string LastViewed = "LastViewedItem";
+}

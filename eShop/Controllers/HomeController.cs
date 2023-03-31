@@ -2,6 +2,7 @@
 using eShop.Interfaces;
 using eShop.Models;
 using eShop.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -18,7 +19,6 @@ namespace eShop.Controllers
             _logger = logger;
             _productService = productService;
 
-
         }
 
         public async Task<IActionResult> IndexAsync()
@@ -27,10 +27,30 @@ namespace eShop.Controllers
 
             List<Product> productList = await _productService.GetAllProductsAsync();
 
+
+            var _lastViewedId = HttpContext.Session.GetInt32(SessionConstants.LastViewed);
+
+            if (_lastViewedId != null)
+            {
+                var _lastViewedProduct = await _productService.GetProductByIdAsync((int) _lastViewedId);
+                if( _lastViewedProduct != null )
+                {
+                    ViewData["lastViewedName"] = _lastViewedProduct.Name;
+                    ViewData["lastViewedBrand"] = _lastViewedProduct.Brand;
+                    ViewData["_id"]= _lastViewedProduct.Id;
+                    ViewData["_name"]= _lastViewedProduct.Name;
+                    ViewData["_image"]=_lastViewedProduct.Image;
+                    ViewData["_price"]=_lastViewedProduct.Price;
+                }
+
+
+            }
+
             sw.Stop();
             double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
 
             ViewData["pageLoadTime"] = ms;
+
 
             return View(productList) ;
         }
@@ -52,7 +72,11 @@ namespace eShop.Controllers
             if (_product == null)
             {
                 return NotFound();
+            
             }
+
+            HttpContext.Session.SetInt32(SessionConstants.LastViewed, id);
+
             return View(_product);
         }
     }

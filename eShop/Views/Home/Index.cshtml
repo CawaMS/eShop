@@ -10,6 +10,27 @@
     <!--<link href="/css/site.min.css" rel="stylesheet"/> -->
 </head>
 
+<div>
+    @{
+        if (ViewData["lastViewedName"] != null)
+        {
+            <div>
+                You just viewed @ViewData["lastViewedName"] from @ViewData["lastViewedBrand"]
+                <form asp-controller="Carts" asp-action="Create">
+                    <input value="Add to cart" type="submit" />
+                    <input type="hidden" asp-for='@ViewData["_id"]' name="id" />
+                    <input type="hidden" asp-for='@ViewData["_name"]' name="name" />
+                    <input type="hidden" asp-for='@ViewData["_image"]' name="image" />
+                    <input type="hidden" asp-for='@ViewData["_price"]' name="price" />
+                </form>
+            </div>
+        
+        }
+    }
+</div>
+
+<br/>
+
 <div class="container">
 
         @foreach (var item in Model)
@@ -29,6 +50,7 @@
             </div>
         }
 </div>
+
 
 <div>
     <h4>Using Azure Redis Cache</h4>
