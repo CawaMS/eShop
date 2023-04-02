@@ -13,6 +13,21 @@ namespace eShop.Services
             _context = context; 
         }
 
+        public Task AddProduct(Product product)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteProrduct(int productId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task EditProduct(Product product)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<List<Product>> GetAllProductsAsync()
         {
             if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");

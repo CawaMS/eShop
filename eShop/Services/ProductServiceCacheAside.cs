@@ -7,6 +7,8 @@ using NuGet.Protocol;
 using System.Text;
 using System.Text.Json;
 using eShop.Helpers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.CodeAnalysis;
 
 namespace eShop.Services
 {
@@ -19,6 +21,52 @@ namespace eShop.Services
         { 
             _cache = cache;
             _context = context;
+        }
+
+        public async Task AddProduct(Product product)
+        {
+            _context.Add(product);
+            await _context.SaveChangesAsync();
+            await _cache.RemoveAsync(CacheKeyConstants.AllProductKey);
+        }
+
+        public async Task DeleteProrduct(int productId)
+        {
+            if (_context.Product == null)
+            {
+                throw new Exception("Item not found");
+            }
+            var product = await _context.Product.FindAsync(productId);
+            if (product != null)
+            {
+                _context.Product.Remove(product);
+            }
+
+            await _context.SaveChangesAsync();
+            await _cache.RemoveAsync(CacheKeyConstants.AllProductKey);
+            await _cache.RemoveAsync(CacheKeyConstants.ProductPrefix + productId);
+        }
+
+        public async Task EditProduct(Product product)
+        {
+            try
+            {
+                _context.Update(product);
+                await _context.SaveChangesAsync();
+                await _cache.RemoveAsync(CacheKeyConstants.AllProductKey);
+                await _cache.RemoveAsync(CacheKeyConstants.ProductPrefix + product.Id);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ProductExists(product.Id))
+                {
+                    throw new Exception("Item not found");
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
 
         public async Task<List<Product>> GetAllProductsAsync()
@@ -56,6 +104,11 @@ namespace eShop.Services
             }
 
             return ConvertData<Product>.ByteArrayToObject(bytesFromCache);
+        }
+
+        private bool ProductExists(int id)
+        {
+            return (_context.Product?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
     }
