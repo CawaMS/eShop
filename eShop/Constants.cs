@@ -6,6 +6,7 @@ public static class Constants
     public const int ITEMS_PER_PAGE = 10;
     public const string DEFAULT_USERNAME = "Guest";
     public const string CART_ID = "CartId";
+    public const string UNIQUE_CACHE_TAG = "Shopping_Since";
 }
 
 public static class CacheKeyConstants

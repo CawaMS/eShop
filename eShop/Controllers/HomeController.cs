@@ -49,6 +49,26 @@ namespace eShop.Controllers
             sw.Stop();
             double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
 
+            //var userOrSessionName = Request.HttpContext.User.Identity.IsAuthenticated? Request.HttpContext.User.Identity.Name : Guid.NewGuid().ToString();
+            var userOrSessionName = "";
+            if (Request.HttpContext.User.Identity.IsAuthenticated)
+            {
+                userOrSessionName = Request.HttpContext.User.Identity.Name;
+            }
+            else if (Request.Cookies.ContainsKey(Constants.UNIQUE_CACHE_TAG))
+            {
+                userOrSessionName = Request.Cookies[Constants.UNIQUE_CACHE_TAG];
+            }
+            else 
+            { 
+                userOrSessionName = Guid.NewGuid().ToString();
+                var cookieOptions = new CookieOptions { IsEssential = true };
+                Response.Cookies.Append(Constants.UNIQUE_CACHE_TAG, userOrSessionName, cookieOptions);
+            }
+
+
+            ViewData["userUniqueShoppingKey"] = userOrSessionName;
+
             ViewData["pageLoadTime"] = ms;
 
 
