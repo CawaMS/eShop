@@ -7,3 +7,8 @@ public static class Constants
     public const string DEFAULT_USERNAME = "Guest";
     public const string CART_ID = "CartId";
 }
+
+public static class SessionConstants
+{
+    public const string LastViewed = "LastViewedItem";
+}
