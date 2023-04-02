@@ -88,14 +88,19 @@ namespace eShop.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
+            Stopwatch sw = Stopwatch.StartNew();
             Product _product = await _productService.GetProductByIdAsync(id);
+            sw.Stop();
+            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
+
             if (_product == null)
             {
                 return NotFound();
-            
             }
 
             HttpContext.Session.SetInt32(SessionConstants.LastViewed, id);
+
+            ViewData["pageLoadTime"] = ms;
 
             return View(_product);
         }
