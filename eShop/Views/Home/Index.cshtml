@@ -10,12 +10,22 @@
     <!--<link href="/css/site.min.css" rel="stylesheet"/> -->
 </head>
 
+<distributed-cache name="my-distributed-cache-unique-key-101" expires-after="@TimeSpan.FromDays(1)">
+    Started shopping since @DateTime.Now
+</distributed-cache>
+
+<div>
+    <ul></ul>
+</div>
+
 <div>
     @{
         if (ViewData["lastViewedName"] != null)
         {
             <div>
-                You just viewed @ViewData["lastViewedName"] from @ViewData["lastViewedBrand"]
+               <h4>
+                    You just viewed @ViewData["lastViewedName"] from @ViewData["lastViewedBrand"]
+               </h4> 
                 <form asp-controller="Carts" asp-action="Create">
                     <input value="Add to cart" type="submit" />
                     <input type="hidden" asp-for='@ViewData["_id"]' name="id" />
