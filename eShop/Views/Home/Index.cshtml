@@ -21,31 +21,34 @@
     <ul></ul>
 </div>
 
-<div>
-    @{
-        if (ViewData["lastViewedName"] != null)
-        {
-            <div>
-                You just viewed @ViewData["lastViewedName"] from @ViewData["lastViewedBrand"]
-                <form asp-controller="Carts" asp-action="Create">
-                    <input value="Add to cart" type="submit" />
-                    <input type="hidden" asp-for='@ViewData["_id"]' name="id" />
-                    <input type="hidden" asp-for='@ViewData["_name"]' name="name" />
-                    <input type="hidden" asp-for='@ViewData["_image"]' name="image" />
-                    <input type="hidden" asp-for='@ViewData["_price"]' name="price" />
-                </form>
-            </div>
 
+    <div>
+        @{
+            if (ViewData["lastViewedName"] != null)
+            {
+                <div>
+                    You just viewed @ViewData["lastViewedName"] from @ViewData["lastViewedBrand"]
+                    <form asp-controller="Carts" asp-action="Create">
+                        <input value="Add to cart" type="submit" />
+                        <input type="hidden" asp-for='@ViewData["_id"]' name="id" />
+                        <input type="hidden" asp-for='@ViewData["_name"]' name="name" />
+                        <input type="hidden" asp-for='@ViewData["_image"]' name="image" />
+                        <input type="hidden" asp-for='@ViewData["_price"]' name="price" />
+                    </form>
+                </div>
+
+            }
         }
-    }
-</div>
+    </div>
+
+
 
 <br />
 
 <div>
     <ul></ul>
 </div>
-
+<distributed-cache name="eShopProductView-unique" expires-after="@TimeSpan.FromHours(1)">
 <div>
     @for (int i = 0; i < rowCount; i++)
     {
@@ -70,6 +73,7 @@
     }
 </div>
 
+</distributed-cache>
 <br/>
 
 
