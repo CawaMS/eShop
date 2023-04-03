@@ -21,17 +21,18 @@ namespace eShop.Controllers
 
         }
 
-        public async Task<IActionResult> IndexAsync()
+        public IActionResult IndexAsync()
         {
             Stopwatch sw = Stopwatch.StartNew();
 
-            List<Product> productList = await _productService.GetAllProductsAsync();
+            List<Product> productList = (_productService.GetAllProductsAsync()).GetAwaiter().GetResult();
             
             var _lastViewedId = HttpContext.Session.GetInt32(SessionConstants.LastViewed);
 
             if (_lastViewedId != null)
             {
-                var _lastViewedProduct = await _productService.GetProductByIdAsync((int) _lastViewedId);
+                //var _lastViewedProduct = await _productService.GetProductByIdAsync((int) _lastViewedId);
+                var _lastViewedProduct = productList.Where(_item => _item.Id == _lastViewedId).FirstOrDefault();
                 if( _lastViewedProduct != null )
                 {
                     ViewData["lastViewedName"] = _lastViewedProduct.Name;
@@ -41,8 +42,6 @@ namespace eShop.Controllers
                     ViewData["_image"]=_lastViewedProduct.Image;
                     ViewData["_price"]=_lastViewedProduct.Price;
                 }
-
-
             }
             sw.Stop();
             double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
@@ -72,7 +71,7 @@ namespace eShop.Controllers
             ViewData["pageLoadTime"] = ms;
 
 
-            return View(productList) ;
+            return View(productList);
         }
 
         public IActionResult Privacy()

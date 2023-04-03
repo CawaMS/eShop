@@ -71,28 +71,27 @@ namespace eShop.Services
 
         public async Task<List<Product>> GetAllProductsAsync()
         {
-            var bytesFromCache = await _cache.GetAsync(CacheKeyConstants.AllProductKey);
-            if (bytesFromCache.IsNullOrEmpty())
+            var stringFromCache = await _cache.GetStringAsync(CacheKeyConstants.AllProductKey);
+            if (stringFromCache.IsNullOrEmpty())
             {
                 if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
-                Console.WriteLine("Fetching from redis");
                 List<Product> AllProductList = await Task.Run(() => _context.Product.ToList());
                 var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
-                byte[] AllProductBytes = ConvertData<Product>.ObjectListToByteArray(AllProductList);
-                await _cache.SetAsync(CacheKeyConstants.AllProductKey, AllProductBytes, options);
-                return ConvertData<Product>.ByteArrayToObjectList(AllProductBytes);
+                string AllProductString = ConvertData<Product>.ObjectListToString(AllProductList);
+                await _cache.SetStringAsync(CacheKeyConstants.AllProductKey, AllProductString, options);
+                return ConvertData<Product>.StringToObjectList(AllProductString);
             }
 
 
-            return ConvertData<Product>.ByteArrayToObjectList(bytesFromCache);
+            return ConvertData<Product>.StringToObjectList(stringFromCache);
 
             //return await _context.Product.ToListAsync();
          }
 
         public async Task<Product?> GetProductByIdAsync(int productId)
         {
-            var bytesFromCache = await _cache.GetAsync(CacheKeyConstants.ProductPrefix + productId);
-            if (bytesFromCache.IsNullOrEmpty())
+            var stringFromCache = await _cache.GetStringAsync(CacheKeyConstants.ProductPrefix + productId);
+            if (stringFromCache.IsNullOrEmpty())
             {
                 var productById = await Task.Run(() => _context.Product.Where(product => product.Id == productId).FirstOrDefault());
                 if (productById == null)
@@ -100,12 +99,12 @@ namespace eShop.Services
                     return null;
                 }
                 var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
-                byte[] ProductByIdBytes = ConvertData<Product>.ObjectToByteArray(productById);
-                await _cache.SetAsync(CacheKeyConstants.ProductPrefix + productId, ProductByIdBytes, options);
-                return ConvertData<Product>.ByteArrayToObject(ProductByIdBytes);
+                string ProductByIdString = ConvertData<Product>.ObjectToString(productById);
+                await _cache.SetStringAsync(CacheKeyConstants.ProductPrefix + productId, ProductByIdString, options);
+                return ConvertData<Product>.StringToObject(ProductByIdString);
             }
 
-            return ConvertData<Product>.ByteArrayToObject(bytesFromCache);
+            return ConvertData<Product>.StringToObject(stringFromCache);
         }
 
         private bool ProductExists(int id)

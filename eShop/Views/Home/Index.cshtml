@@ -13,9 +13,12 @@
     <!--<link href="/css/site.min.css" rel="stylesheet"/> -->
 </head>
 
+
 <distributed-cache name="@ViewData["userUniqueShoppingKey"]" expires-after="@TimeSpan.FromHours(1)">
     Started shopping since @DateTime.Now
 </distributed-cache>
+
+
 
 <div>
     <ul></ul>
@@ -55,11 +58,10 @@
             @foreach (var item in Model.Skip(i * itemsPerRow).Take(itemsPerRow))
             {
                 <div class="card">
-                        <distributed-cache name="eShopProductView-unique+@item.Name" expires-after="@TimeSpan.FromHours(1)">
+
                             <img src="@item.Image" />
                             <h4><b>@item.Name</b></h4>
                             <p>@item.Price</p>
-                        </distributed-cache>
                     <a asp-action="Details" asp-route-id="@item.Id">View details</a>
                     <form asp-controller="Carts" asp-action="Create">
                         <input class="button" value="Add to cart" type="submit" />
