@@ -71,20 +71,22 @@ namespace eShop.Services
 
         public async Task<List<Product>> GetAllProductsAsync()
         {
-            var bytesFromCache = await _cache.GetAsync(CacheKeyConstants.AllProductKey);
-            if (bytesFromCache.IsNullOrEmpty())
-            {
-                if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
-                Console.WriteLine("Fetching from redis");
-                List<Product> AllProductList = await Task.Run(() => _context.Product.ToList());
-                var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
-                byte[] AllProductBytes = ConvertData<Product>.ObjectListToByteArray(AllProductList);
-                await _cache.SetAsync(CacheKeyConstants.AllProductKey, AllProductBytes, options);
-                return ConvertData<Product>.ByteArrayToObjectList(AllProductBytes);
-            }
+            //var bytesFromCache = await _cache.GetAsync(CacheKeyConstants.AllProductKey);
+            //if (bytesFromCache.IsNullOrEmpty())
+            //{
+            //    if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
+            //    Console.WriteLine("Fetching from redis");
+            //    List<Product> AllProductList = await Task.Run(() => _context.Product.ToList());
+            //    var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
+            //    byte[] AllProductBytes = ConvertData<Product>.ObjectListToByteArray(AllProductList);
+            //    await _cache.SetAsync(CacheKeyConstants.AllProductKey, AllProductBytes, options);
+            //    return ConvertData<Product>.ByteArrayToObjectList(AllProductBytes);
+            //}
 
 
-            return ConvertData<Product>.ByteArrayToObjectList(bytesFromCache);
+            //return ConvertData<Product>.ByteArrayToObjectList(bytesFromCache);
+
+            return await _context.Product.ToListAsync();
          }
 
         public async Task<Product?> GetProductByIdAsync(int productId)
