@@ -27,8 +27,7 @@ namespace eShop.Controllers
 
             List<Product> productList = await _productService.GetAllProductsAsync();
 
-            sw.Stop();
-            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
+
 
             var _lastViewedId = HttpContext.Session.GetInt32(SessionConstants.LastViewed);
 
@@ -45,6 +44,9 @@ namespace eShop.Controllers
                     ViewData["_price"]=_lastViewedProduct.Price;
                 }
             }
+
+            sw.Stop();
+            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
 
             ViewData["pageLoadTime"] = ms;
 
