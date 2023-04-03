@@ -21,11 +21,11 @@ namespace eShop.Controllers
 
         }
 
-        public async Task<IActionResult> IndexAsync()
+        public IActionResult IndexAsync()
         {
             Stopwatch sw = Stopwatch.StartNew();
 
-            List<Product> productList = await _productService.GetAllProductsAsync();
+            List<Product> productList = (_productService.GetAllProductsAsync()).GetAwaiter().GetResult();
 
 
 
@@ -33,7 +33,8 @@ namespace eShop.Controllers
 
             if (_lastViewedId != null)
             {
-                var _lastViewedProduct = await _productService.GetProductByIdAsync((int)_lastViewedId);
+                //var _lastViewedProduct = await _productService.GetProductByIdAsync((int)_lastViewedId);
+                var _lastViewedProduct = productList.Where(_product => _product.Id == _lastViewedId).FirstOrDefault();
                 if (_lastViewedProduct != null)
                 {
                     ViewData["lastViewedName"] = _lastViewedProduct.Name;
