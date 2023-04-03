@@ -26,9 +26,7 @@ namespace eShop.Controllers
             Stopwatch sw = Stopwatch.StartNew();
 
             List<Product> productList = await _productService.GetAllProductsAsync();
-            sw.Stop();
-            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
-
+            
             var _lastViewedId = HttpContext.Session.GetInt32(SessionConstants.LastViewed);
 
             if (_lastViewedId != null)
@@ -46,6 +44,8 @@ namespace eShop.Controllers
 
 
             }
+            sw.Stop();
+            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
 
 
 

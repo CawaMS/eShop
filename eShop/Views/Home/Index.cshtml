@@ -48,7 +48,6 @@
 <div>
     <ul></ul>
 </div>
-<distributed-cache name="eShopProductView-unique" expires-after="@TimeSpan.FromHours(1)">
 <div>
     @for (int i = 0; i < rowCount; i++)
     {
@@ -56,9 +55,11 @@
             @foreach (var item in Model.Skip(i * itemsPerRow).Take(itemsPerRow))
             {
                 <div class="card">
-                    <img src="@item.Image" />
-                    <h4><b>@item.Name</b></h4>
-                    <p>@item.Price</p>
+                        <distributed-cache name="eShopProductView-unique+@item.Name" expires-after="@TimeSpan.FromHours(1)">
+                            <img src="@item.Image" />
+                            <h4><b>@item.Name</b></h4>
+                            <p>@item.Price</p>
+                        </distributed-cache>
                     <a asp-action="Details" asp-route-id="@item.Id">View details</a>
                     <form asp-controller="Carts" asp-action="Create">
                         <input class="button" value="Add to cart" type="submit" />
@@ -72,8 +73,6 @@
         </div>
     }
 </div>
-
-</distributed-cache>
 <br/>
 
 
