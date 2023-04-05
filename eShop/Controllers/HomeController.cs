@@ -21,11 +21,11 @@ namespace eShop.Controllers
 
         }
 
-        public IActionResult IndexAsync()
+        public async Task<IActionResult> IndexAsync()
         {
             Stopwatch sw = Stopwatch.StartNew();
 
-            List<Product> productList = (_productService.GetAllProductsAsync()).GetAwaiter().GetResult();
+            List<Product> productList = await _productService.GetAllProductsAsync();
             
             var _lastViewedId = HttpContext.Session.GetInt32(SessionConstants.LastViewed);
 
