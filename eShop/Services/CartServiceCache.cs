@@ -126,7 +126,13 @@ namespace eShop.Services
             { 
                 return; 
             }
+            
             string cartItemListString = await _cache.GetStringAsync(CacheKeyConstants.GetCartItemListKey(anonymousName));
+            string existingCartId = await _cache.GetStringAsync(userName);
+            if (!existingCartId.IsNullOrEmpty())
+            {
+                await _cache.RemoveAsync(existingCartId);
+            }
             if (!cartItemListString.IsNullOrEmpty())
             {
                 await _cache.SetStringAsync(CacheKeyConstants.GetCartItemListKey(userName), cartItemListString, options);
