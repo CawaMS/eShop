@@ -84,8 +84,6 @@ namespace eShop.Services
 
 
             return ConvertData<Product>.StringToObjectList(stringFromCache);
-
-            //return await _context.Product.ToListAsync();
          }
 
         public async Task<Product?> GetProductByIdAsync(int productId)

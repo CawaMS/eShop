@@ -1,8 +1,9 @@
 ﻿namespace eShop.Models;
 
 [Serializable]
-public class Cart:BaseEntity
+public class Cart
 {
+    public int Id { get; set; }
     public string BuyerId { get; private set; }
     private readonly List<CartItem> _items = new List<CartItem>();
     public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();

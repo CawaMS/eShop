@@ -3,8 +3,9 @@
 namespace eShop.Models;
 
 [Serializable]
-public class CartItem : BaseEntity
+public class CartItem 
 {
+    public int Id { get; set; }
     public decimal UnitPrice { get; private set; }
     public int Quantity { get; private set; }
     public int ItemId { get; private set; }
