@@ -4,7 +4,7 @@
 public class Cart
 {
     public int Id { get; set; }
-    public string BuyerId { get; private set; }
+    public string BuyerId { get; set; }
     private readonly List<CartItem> _items = new List<CartItem>();
     public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();
 
@@ -38,14 +38,5 @@ public class Cart
         _items.RemoveAll(i => i.Quantity == 0);
     }
 
-    public void SetNewBuyerId(string buyerId)
-    {
-        BuyerId = buyerId;
-    }
-
-    public void setId(int id)
-    { 
-        this.Id = id;
-    }
 
 }

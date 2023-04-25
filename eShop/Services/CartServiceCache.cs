@@ -68,7 +68,8 @@ namespace eShop.Services
             }
 
             Cart _cart = new Cart(username);
-            _cart.setId(_cartId);
+            //_cart.setId(_cartId);
+            _cart.Id = _cartId;
             return _cart;
         }
 
@@ -95,7 +96,7 @@ namespace eShop.Services
             }
 
             int cartId = Int32.Parse(cartIdString);
-            cart.setId(cartId);
+            cart.Id = cartId;
 
             return cart;
 
