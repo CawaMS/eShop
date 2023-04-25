@@ -32,7 +32,8 @@ namespace eShop.Services
                 await _cache.SetStringAsync(username, _cartId.ToString(), options);
                 List<CartItem> cartItemList = new List<CartItem>();
                 CartItem cartItemToAdd = new CartItem(itemId, quantity, price);
-                cartItemToAdd.SetCartId(_cartId);
+                //cartItemToAdd.SetCartId(_cartId);
+                cartItemToAdd.CartId = _cartId;
                 cartItemList.Add(cartItemToAdd);
                 string newCartItemString = ConvertData<CartItem>.ObjectListToString(cartItemList);
                 await _cache.SetStringAsync(CacheKeyConstants.GetCartItemListKey(username),newCartItemString, options);
@@ -55,7 +56,8 @@ namespace eShop.Services
                     if(cartIdString != null)
                     {
                         int cartId = Int32.Parse(cartIdString);
-                        newCartItem.SetCartId(cartId);
+                        //newCartItem.SetCartId(cartId);
+                        newCartItem.CartId = cartId;
                     }
 
                     _cartId = newCartItem.CartId;
