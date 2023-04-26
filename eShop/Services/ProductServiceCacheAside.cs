@@ -9,6 +9,9 @@ using System.Text.Json;
 using eShop.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.CodeAnalysis;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 
 namespace eShop.Services
 {
@@ -16,11 +19,13 @@ namespace eShop.Services
     {
         private readonly IDistributedCache _cache;
         private readonly eShopContext _context;
+        private readonly TelemetryClient _telemetryClient;
 
-        public ProductServiceCacheAside(IDistributedCache cache, eShopContext context) 
+        public ProductServiceCacheAside(IDistributedCache cache, eShopContext context, TelemetryClient telemetryClient) 
         { 
             _cache = cache;
             _context = context;
+            _telemetryClient = telemetryClient;
         }
 
         public async Task AddProduct(Product product)
@@ -71,19 +76,23 @@ namespace eShop.Services
 
         public async Task<List<Product>> GetAllProductsAsync()
         {
-            var stringFromCache = await _cache.GetStringAsync(CacheKeyConstants.AllProductKey);
-            if (stringFromCache.IsNullOrEmpty())
+            using (var operation = _telemetryClient.StartOperation<DependencyTelemetry>("AzureCacheForRedis"))
             {
-                if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
-                List<Product> AllProductList = await Task.Run(() => _context.Product.ToList());
-                var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
-                string AllProductString = ConvertData<Product>.ObjectListToString(AllProductList);
-                await _cache.SetStringAsync(CacheKeyConstants.AllProductKey, AllProductString, options);
-                return ConvertData<Product>.StringToObjectList(AllProductString);
+                var stringFromCache = await _cache.GetStringAsync(CacheKeyConstants.AllProductKey);
+                if (stringFromCache.IsNullOrEmpty())
+                {
+                    if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
+                    List<Product> AllProductList = await Task.Run(() => _context.Product.ToList());
+                    var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
+                    string AllProductString = ConvertData<Product>.ObjectListToString(AllProductList);
+                    await _cache.SetStringAsync(CacheKeyConstants.AllProductKey, AllProductString, options);
+                    return ConvertData<Product>.StringToObjectList(AllProductString);
+                }
+
+
+                return ConvertData<Product>.StringToObjectList(stringFromCache);
             }
 
-
-            return ConvertData<Product>.StringToObjectList(stringFromCache);
          }
 
         public async Task<Product?> GetProductByIdAsync(int productId)
