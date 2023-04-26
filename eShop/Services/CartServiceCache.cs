@@ -2,6 +2,8 @@
 using eShop.Helpers;
 using eShop.Interfaces;
 using eShop.Models;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -11,11 +13,13 @@ namespace eShop.Services
     public class CartServiceCache : ICartService
     {
         private readonly IDistributedCache _cache;
+        private readonly TelemetryClient _telemetryClient;
 
 
-        public CartServiceCache(IDistributedCache cache)
+        public CartServiceCache(IDistributedCache cache, TelemetryClient telemetryClient)
         {
             _cache = cache;
+            _telemetryClient = telemetryClient;
         }
 
         public async Task<Cart> AddItemToCart(string username, int itemId, decimal price, int quantity = 1)
@@ -90,17 +94,21 @@ namespace eShop.Services
 
         public async Task<Cart?> GetCartAsync(string username)
         {
-            Cart cart = new Cart(username);
-            string cartIdString = await _cache.GetStringAsync(username);
-            if (cartIdString == null)
+            using (var operation = _telemetryClient.StartOperation<DependencyTelemetry>("AzureCacheForRedis"))
             {
-                return null;
+                Cart cart = new Cart(username);
+                string cartIdString = await _cache.GetStringAsync(username);
+                if (cartIdString == null)
+                {
+                    return null;
+                }
+
+                int cartId = Int32.Parse(cartIdString);
+                cart.Id = cartId;
+
+                return cart;
             }
 
-            int cartId = Int32.Parse(cartIdString);
-            cart.Id = cartId;
-
-            return cart;
 
         }
 
