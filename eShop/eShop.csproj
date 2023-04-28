@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-eShop-68c80d0e-0eb2-4dae-8852-362187c5d0ba</UserSecretsId>
-    <ThreadPoolMinThreads>500</ThreadPoolMinThreads>
+    <ThreadPoolMinThreads>1500</ThreadPoolMinThreads>
   </PropertyGroup>
 
   <ItemGroup>
