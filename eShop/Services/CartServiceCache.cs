@@ -44,7 +44,7 @@ namespace eShop.Services
             }
             else 
             {
-                List<CartItem> cartItemList = ConvertData<CartItem>.ByteArrayToObjectList(cartItemListByteArray);
+                List<CartItem> cartItemList = (List<CartItem>)ConvertData<CartItem>.ByteArrayToObjectList(cartItemListByteArray);
                 CartItem cartItem = cartItemList.Where(item => item.ItemId == itemId).FirstOrDefault();
                 if (cartItem != null)
                 {

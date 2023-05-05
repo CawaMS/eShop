@@ -1,22 +1,24 @@
 ﻿using eShop.Models;
 using System.Text.Json;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace eShop.Helpers
 {
     public static class ConvertData<T>
     {
-        public static List<T> ByteArrayToObjectList(byte[] inputByteArray)
+        public static IAsyncEnumerable<T> ByteArrayToObjectList(byte[] inputByteArray)
         {
-            var deserializedList = JsonSerializer.Deserialize<List<T>>(inputByteArray);
+            var deserializedList = JsonSerializer.DeserializeAsyncEnumerable<T>(new MemoryStream(inputByteArray));
             return deserializedList;
         }
 
         public static byte[] ObjectListToByteArray(List<T> inputList)
         {
-            var bytes = JsonSerializer.SerializeToUtf8Bytes(inputList);
+            MemoryStream memoryStream = new MemoryStream();
+            JsonSerializer.SerializeAsync(memoryStream, inputList);
 
-            return bytes;
+            return memoryStream.ToArray();
         }
 
         public static T ByteArrayToObject(byte[] inputByteArray)

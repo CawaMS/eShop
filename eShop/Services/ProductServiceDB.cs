@@ -28,10 +28,10 @@ namespace eShop.Services
             throw new NotImplementedException();
         }
 
-        public async Task<List<Product>> GetAllProductsAsync()
+        public async IAsyncEnumerable<Product> GetAllProductsAsync()
         {
             if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
-            return await Task.Run(() => _context.Product.ToList());
+            yield return (Product) _context.Product.AsQueryable();
         }
 
         public async Task<Product?> GetProductByIdAsync(int productId)

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Linq;
 
 namespace eShop.Controllers
 {
@@ -25,14 +26,14 @@ namespace eShop.Controllers
         {
             //Stopwatch sw = Stopwatch.StartNew();
 
-            List<Product> productList = await _productService.GetAllProductsAsync();
+            IAsyncEnumerable<Product> productList = _productService.GetAllProductsAsync();
             
             var _lastViewedId = HttpContext.Session.GetInt32(SessionConstants.LastViewed);
 
             if (_lastViewedId != null)
             {
-                //var _lastViewedProduct = await _productService.GetProductByIdAsync((int) _lastViewedId);
-                var _lastViewedProduct = productList.Where(_item => _item.Id == _lastViewedId).FirstOrDefault();
+                var _lastViewedProduct = await _productService.GetProductByIdAsync((int) _lastViewedId);
+                //var _lastViewedProduct = productList.Where(_item => _item.Id == _lastViewedId).FirstOrDefault();
                 if( _lastViewedProduct != null )
                 {
                     ViewData["lastViewedName"] = _lastViewedProduct.Name;
@@ -70,8 +71,9 @@ namespace eShop.Controllers
 
             //ViewData["pageLoadTime"] = ms;
 
+            List<Product> returnProductList = await productList.ToListAsync();
 
-            return View(productList);
+            return View(returnProductList);
         }
 
         public IActionResult Privacy()
