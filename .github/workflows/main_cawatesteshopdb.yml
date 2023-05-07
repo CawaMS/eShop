@@ -47,11 +47,15 @@ jobs:
         with:
           name: .net-app
 
+      - name: login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'cawatesteshopdb'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_315BA066485740BB854AD6AB0A077EC1 }}
           package: .
