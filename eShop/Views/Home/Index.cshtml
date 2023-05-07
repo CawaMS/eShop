@@ -55,6 +55,7 @@
 <div>
     <ul></ul>
 </div>
+<distributed-cache name="ProductListPageOutput" expires-after="@TimeSpan.FromHours(1)">
 <div>
     @for (int i = 0; i < rowCount; i++)
     {
@@ -79,6 +80,7 @@
         </div>
     }
 </div>
+</distributed-cache>
 <br/>
 
 
