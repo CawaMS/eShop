@@ -7,10 +7,14 @@ namespace eShop.Helpers
 {
     public static class ConvertData<T>
     {
-        public static IAsyncEnumerable<T> ByteArrayToObjectList(byte[] inputByteArray)
+        public static async IAsyncEnumerable<T> ByteArrayToObjectList(byte[] inputByteArray)
         {
-            var deserializedList = JsonSerializer.DeserializeAsyncEnumerable<T>(new MemoryStream(inputByteArray));
-            return deserializedList;
+            IAsyncEnumerable<T> deserializedList = JsonSerializer.DeserializeAsyncEnumerable<T>(new MemoryStream(inputByteArray));
+            //return deserializedList;
+            await foreach (T _item in deserializedList)
+            {
+                yield return _item;
+            }
         }
 
         public static byte[] ObjectListToByteArray(List<T> inputList)
