@@ -13,7 +13,7 @@
     <!--<link href="/css/site.min.css" rel="stylesheet"/> -->
 </head>
 
-<h2>Hello again from git action</h2>
+
 
 <!--
     <distributed-cache name="@ViewData["userUniqueShoppingKey"]" expires-after="@TimeSpan.FromHours(1)">
@@ -22,11 +22,6 @@
 -->
 
 
-
-
-<div>
-    <ul></ul>
-</div>
 
 
     <div>
@@ -49,13 +44,13 @@
     </div>
 
 
-
+<distributed-cache name="ProductListPageOutput" expires-after="@TimeSpan.FromHours(1)">
 <br />
 
 <div>
     <ul></ul>
 </div>
-<distributed-cache name="ProductListPageOutput" expires-after="@TimeSpan.FromHours(1)">
+
 <div>
     @for (int i = 0; i < rowCount; i++)
     {
@@ -80,13 +75,12 @@
         </div>
     }
 </div>
-</distributed-cache>
+
 <br/>
 
 
 <div>
     <h4>Using Azure Redis Cache</h4>
 </div>
-<div>
-    <h4>Data load time: @ViewData["pageLoadTime"] milli-seconds</h4>
-</div>
+
+</distributed-cache>
