@@ -7,11 +7,11 @@ namespace eShop.Interfaces;
 
 public interface ICartService
 {
-    Task TransferCartAsync(string anonymousId, string userName);
-    Task<Cart> AddItemToCart(string username, int catalogItemId, decimal price, int quantity = 1);
+    Task TransferCart(string anonymousId, string userName);
+    Task<Cart> AddItem(string username, int catalogItemId, decimal price, int quantity = 1);
     Task<Cart> SetQuantities(int cartId, Dictionary<string, int> quantities);
-    Task DeleteCartAsync(int cartId);
-    Task<Cart?> GetCartAsync(string cartId);
-    Task<int> GetCartId(Cart cart);
+    Task DeleteCart(int cartId);
+    Task<Cart?> GetCart(string cartId);
+    IAsyncEnumerable<CartItem> GetCartItems(int cartId);
 
 }

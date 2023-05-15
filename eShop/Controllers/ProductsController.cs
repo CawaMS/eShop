@@ -125,7 +125,7 @@ namespace eShop.Controllers
             {
                 try 
                 {
-                    await _productService.EditProduct(product);
+                    await _productService.UpdateProduct(product);
                 }
                 catch (Exception ex)
                 {
@@ -162,7 +162,7 @@ namespace eShop.Controllers
         {
             try
             {
-                await _productService.DeleteProrduct(id);
+                await _productService.DeleteProduct(id);
             }
             catch (Exception ex) 
             {

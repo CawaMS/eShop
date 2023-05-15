@@ -18,12 +18,12 @@ namespace eShop.Services
             throw new NotImplementedException();
         }
 
-        public Task DeleteProrduct(int productId)
+        public Task DeleteProduct(int productId)
         {
             throw new NotImplementedException();
         }
 
-        public Task EditProduct(Product product)
+        public Task UpdateProduct(Product product)
         {
             throw new NotImplementedException();
         }

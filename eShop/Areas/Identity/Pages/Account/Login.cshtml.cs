@@ -150,7 +150,7 @@ namespace eShop.Areas.Identity.Pages.Account
                 var anonymousId = Request.Cookies[Constants.CART_COOKIENAME];
                 if (Guid.TryParse(anonymousId, out var _))
                 {
-                    await _cartService.TransferCartAsync(anonymousId, userName);    
+                    await _cartService.TransferCart(anonymousId, userName);    
                 }
                 Response.Cookies.Delete(Constants.CART_COOKIENAME);
             }

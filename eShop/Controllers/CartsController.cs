@@ -11,31 +11,28 @@ namespace eShop.Controllers
     {
         private readonly ICartService _cartService;
         private readonly IProductService _productService;
-        private readonly ICartItemService _cartItemService;
-        // GET: CartsController
 
-        public CartsController(ICartService cartService, IProductService productService, ICartItemService cartItemService)
+        public CartsController(ICartService cartService, IProductService productService)
         { 
             _cartService = cartService;
             _productService = productService;
-            _cartItemService = cartItemService;
         }
         
         public async Task<ActionResult> Index()
         {
-            Stopwatch sw = Stopwatch.StartNew();
 
             List<ShoppingCartItem> ShoppingList = new List<ShoppingCartItem>();
-            var cart = await _cartService.GetCartAsync(GetOrSetBasketCookieAndUserName());
+            var cart = await _cartService.GetCart(GetOrSetBasketCookieAndUserName());
             if (cart == null)
             {
                 return View(ShoppingList);
             }
 
-            int cartId = await _cartService.GetCartId(cart);
-            List<CartItem> CartItemList = await _cartItemService.GetCartItemAsync(cartId);
+            //int cartId = await _cartService.GetCartId(cart);
+            int cartId = cart.Id;
+            IAsyncEnumerable<CartItem> CartItemList = _cartService.GetCartItems(cartId);
 
-            foreach (var item in CartItemList)
+            await foreach (var item in CartItemList)
             {
                 var product = await _productService.GetProductByIdAsync(item.ItemId);
                 if (product == null)
@@ -44,11 +41,6 @@ namespace eShop.Controllers
                 }
                 ShoppingList.Add(new ShoppingCartItem { Name=product.Name, Price=product.Price, Quantity=item.Quantity, CartId=cart.Id });
             }
-
-            sw.Stop();
-            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
-
-            ViewData["cartLoadTime"] = ms;
 
             return View(ShoppingList);
         }
@@ -79,7 +71,7 @@ namespace eShop.Controllers
             }
 
             var username = GetOrSetBasketCookieAndUserName();
-            var cart = await _cartService.AddItemToCart(username,
+            var cart = await _cartService.AddItem(username,
                 productDetails.Id, item.Price);
 
 
@@ -121,7 +113,7 @@ namespace eShop.Controllers
         public async Task<ActionResult> Delete(int CartId)
         {
             Stopwatch sw = Stopwatch.StartNew();
-            await _cartService.DeleteCartAsync(CartId);
+            await _cartService.DeleteCart(CartId);
 
             sw.Stop();
             double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));

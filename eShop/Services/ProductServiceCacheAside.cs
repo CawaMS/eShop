@@ -35,7 +35,7 @@ namespace eShop.Services
             await _cache.RemoveAsync(CacheKeyConstants.AllProductKey);
         }
 
-        public async Task DeleteProrduct(int productId)
+        public async Task DeleteProduct(int productId)
         {
             if (_context.Product == null)
             {
@@ -52,7 +52,7 @@ namespace eShop.Services
             await _cache.RemoveAsync(CacheKeyConstants.ProductPrefix + productId);
         }
 
-        public async Task EditProduct(Product product)
+        public async Task UpdateProduct(Product product)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace eShop.Services
                 {
                     if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
                     List<Product> AllProductList = await _context.Product.ToListAsync();
-                    var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
+                    var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
                     byte[] AllProductByteArray = ConvertData<Product>.ObjectListToByteArray(AllProductList);
                     await _cache.SetAsync(CacheKeyConstants.AllProductKey, AllProductByteArray, options);
                     foreach (Product _product in AllProductList)
@@ -112,7 +112,7 @@ namespace eShop.Services
                 {
                     return null;
                 }
-                var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(30)).SetAbsoluteExpiration(TimeSpan.FromDays(30));
+                var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
                 byte[] ProductByIdByteArray = ConvertData<Product>.ObjectToByteArray(productById);
                 await _cache.SetAsync(CacheKeyConstants.ProductPrefix + productId, ProductByIdByteArray, options);
                 return productById;

@@ -25,8 +25,3 @@ public class Product
     public string? category { get; set; }
 }
 
-public enum Categories
-{ 
-    Purse,
-    Shoes
-}
