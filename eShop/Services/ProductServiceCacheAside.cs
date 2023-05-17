@@ -84,7 +84,11 @@ namespace eShop.Services
                     if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
                     List<Product> AllProductList = await _context.Product.ToListAsync();
                     var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
-                    byte[] AllProductByteArray = ConvertData<Product>.ObjectListToByteArray(AllProductList);
+                    if (AllProductList.IsNullOrEmpty())
+                    {
+                        yield break;
+                    }
+                    byte[] AllProductByteArray = await ConvertData<Product>.ObjectListToByteArray(AllProductList);
                     await _cache.SetAsync(CacheKeyConstants.AllProductKey, AllProductByteArray, options);
                     foreach (var product in AllProductList)
                     {
@@ -117,12 +121,12 @@ namespace eShop.Services
                     return null;
                 }
                 var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
-                byte[] ProductByIdByteArray = ConvertData<Product>.ObjectToByteArray(productById);
+                byte[] ProductByIdByteArray = await ConvertData<Product>.ObjectToByteArray(productById);
                 await _cache.SetAsync(CacheKeyConstants.ProductPrefix + productId, ProductByIdByteArray, options);
                 return productById;
             }
 
-            return ConvertData<Product>.ByteArrayToObject(byteArrayFromCache);
+            return await ConvertData<Product>.ByteArrayToObject(byteArrayFromCache);
         }
 
         private bool ProductExists(int id)

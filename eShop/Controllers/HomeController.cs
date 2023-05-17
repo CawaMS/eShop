@@ -24,7 +24,6 @@ namespace eShop.Controllers
 
         public async Task<IActionResult> IndexAsync()
         {
-            //Stopwatch sw = Stopwatch.StartNew();
 
             List<Product> productList = await _productService.GetAllProductsAsync().ToListAsync();
             
@@ -33,7 +32,6 @@ namespace eShop.Controllers
             if (_lastViewedId != null)
             {
                 var _lastViewedProduct = await _productService.GetProductByIdAsync((int) _lastViewedId);
-                //var _lastViewedProduct = productList.Where(_item => _item.Id == _lastViewedId).FirstOrDefault();
                 if( _lastViewedProduct != null )
                 {
                     ViewData["lastViewedName"] = _lastViewedProduct.Name;
@@ -44,10 +42,6 @@ namespace eShop.Controllers
                     ViewData["_price"]=_lastViewedProduct.Price;
                 }
             }
-            //sw.Stop();
-            //double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
-
-
 
             //var userOrSessionName = Request.HttpContext.User.Identity.IsAuthenticated? Request.HttpContext.User.Identity.Name : Guid.NewGuid().ToString();
             //var userOrSessionName = "";
@@ -69,7 +63,6 @@ namespace eShop.Controllers
 
             //ViewData["userUniqueShoppingKey"] = userOrSessionName;
 
-            //ViewData["pageLoadTime"] = ms;
 
             return View(productList);
         }

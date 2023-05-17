@@ -75,8 +75,6 @@ namespace eShop.Controllers
         {
             if (ModelState.IsValid)
             {
-                //_context.Add(product);
-                //await _context.SaveChangesAsync();
                 await _productService.AddProduct(product);
 
                 return RedirectToAction(nameof(Index));

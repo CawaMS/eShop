@@ -3,6 +3,7 @@ using eShop.Models;
 using eShop.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 
 namespace eShop.Controllers
@@ -22,28 +23,29 @@ namespace eShop.Controllers
         {
 
             List<ShoppingCartItem> ShoppingList = new List<ShoppingCartItem>();
-            //var cart = await _cartService.GetCart(GetOrSetBasketCookieAndUserName());
-            //if (cart == null)
-            //{
-            //    return View(ShoppingList);
-            //}
-            //
-            ////int cartId = await _cartService.GetCartId(cart);
-            //int cartId = cart.Id;
-            string username = GetOrSetBasketCookieAndUserName();
-            IAsyncEnumerable<CartItem> CartItemList = _cartService.GetCartItems(username);
 
-            await foreach (var item in CartItemList)
+            string username = GetOrSetBasketCookieAndUserName();
+            List<CartItem> CartItemList = await _cartService.GetCartItems(username).ToListAsync();
+
+            if (CartItemList.IsNullOrEmpty())
             {
-                var product = await _productService.GetProductByIdAsync(item.ItemId);
-                if (product == null)
+                return View(ShoppingList);
+            }
+            else 
+            {
+                foreach (var item in CartItemList)
                 {
-                    return View();
+                    var product = await _productService.GetProductByIdAsync(item.ItemId);
+                    if (product == null)
+                    {
+                        return View();
+                    }
+                    ShoppingList.Add(new ShoppingCartItem { Name=product.Name, Price=product.Price, Quantity=item.Quantity, CartId=username });
                 }
-                ShoppingList.Add(new ShoppingCartItem { Name=product.Name, Price=product.Price, Quantity=item.Quantity, CartId=username });
+
+                return View(ShoppingList);
             }
 
-            return View(ShoppingList);
         }
 
         // GET: CartsController/Details/5
@@ -63,19 +65,11 @@ namespace eShop.Controllers
                 return RedirectToAction("Index","Home");
             }
 
-            //var item = await _productService.GetProductByIdAsync(productDetails.Id);
-            //if (item == null)
-            //{
-            //    ViewData["messageFailed"] = "Failed to add item - not found";
-            //    return RedirectToAction("Index", "Home");
-            //}
 
             var username = GetOrSetBasketCookieAndUserName();
-            //var cart = await _cartService.AddItem(username, productDetails.Id, item.Price);
             await _cartService.AddItem(username, productDetails.Id, productDetails.Price);
 
             return View(productDetails);
-            //return RedirectToAction("Index", "Home");
         }
 
         // GET: CartsController/Edit/5

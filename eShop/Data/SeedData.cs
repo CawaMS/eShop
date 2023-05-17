@@ -19,8 +19,6 @@ namespace eShop.Data
                 var adminID = await EnsureUser(serviceProvider, testUserPw, "admin@eShop.com");
                 await EnsureRole(serviceProvider, adminID, Roles.AdministratorsRole);
 
-
-                //SeedDB(context, adminID);
             }
         }
 
@@ -65,11 +63,6 @@ namespace eShop.Data
             }
 
             var userManager = serviceProvider.GetService<UserManager<IdentityUser>>();
-
-            //if (userManager == null)
-            //{
-            //    throw new Exception("userManager is null");
-            //}
 
             var user = await userManager.FindByIdAsync(uid);
 
