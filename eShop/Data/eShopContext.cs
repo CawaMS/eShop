@@ -15,7 +15,7 @@ namespace eShop.Data
         }
 
         public DbSet<eShop.Models.Product> Product { get; set; } = default!;
-        public DbSet<eShop.Models.CartItem> CartItems { get; set; } = default!;
-        public DbSet<eShop.Models.Cart> Carts { get; set; } = default!;
+        public DbSet<eShop.Models.CartItem> cartItems { get; set; } = default!;
+        public DbSet<eShop.Models.Cart> carts { get; set; } = default!;
     }
 }

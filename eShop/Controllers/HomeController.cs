@@ -26,7 +26,7 @@ namespace eShop.Controllers
         {
             //Stopwatch sw = Stopwatch.StartNew();
 
-            IAsyncEnumerable<Product> productList = _productService.GetAllProductsAsync();
+            List<Product> productList = await _productService.GetAllProductsAsync().ToListAsync();
             
             var _lastViewedId = HttpContext.Session.GetInt32(SessionConstants.LastViewed);
 
@@ -71,9 +71,7 @@ namespace eShop.Controllers
 
             //ViewData["pageLoadTime"] = ms;
 
-            List<Product> returnProductList = await productList.ToListAsync();
-
-            return View(returnProductList);
+            return View(productList);
         }
 
         public IActionResult Privacy()

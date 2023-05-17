@@ -64,7 +64,7 @@
                             <p>@item.Price</p>
                     <a asp-action="Details" asp-route-id="@item.Id">View details</a>
                     <form asp-controller="Carts" asp-action="Create">
-                        <input class="button" value="Add to cart" type="submit" />
+                        <input value="Add to cart" type="submit" />
                         <input type="hidden" asp-for="@item.Id" name="id" />
                         <input type="hidden" asp-for="@item.Name" name="name" />
                         <input type="hidden" asp-for="@item.Image" name="image" />

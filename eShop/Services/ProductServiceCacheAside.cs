@@ -86,16 +86,20 @@ namespace eShop.Services
                     var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
                     byte[] AllProductByteArray = ConvertData<Product>.ObjectListToByteArray(AllProductList);
                     await _cache.SetAsync(CacheKeyConstants.AllProductKey, AllProductByteArray, options);
-                    foreach (Product _product in AllProductList)
-                    { 
-                        yield return _product;
+                    foreach (var product in AllProductList)
+                    {
+                        yield return product;
                     }
                 }
-                IAsyncEnumerable<Product> productList = ConvertData<Product>.ByteArrayToObjectList(byteArrayFromCache);
-                await foreach (Product _product in productList)
-                { 
-                   yield return _product;
+                else 
+                {
+                    IAsyncEnumerable<Product> productList = ConvertData<Product>.ByteArrayToObjectList(byteArrayFromCache);
+                    await foreach (var product in productList)
+                    {
+                        yield return product;
+                    }
                 }
+
                 
 
             }
