@@ -8,10 +8,10 @@ namespace eShop.Interfaces;
 public interface ICartService
 {
     Task TransferCart(string anonymousId, string userName);
-    Task<Cart> AddItem(string username, int catalogItemId, decimal price, int quantity = 1);
+    Task AddItem(string username, int catalogItemId, decimal price, int quantity = 1);
     Task<Cart> SetQuantities(int cartId, Dictionary<string, int> quantities);
-    Task DeleteCart(int cartId);
+    Task DeleteCart(string cartId);
     Task<Cart?> GetCart(string cartId);
-    IAsyncEnumerable<CartItem> GetCartItems(int cartId);
+    IAsyncEnumerable<CartItem> GetCartItems(string username);
 
 }

@@ -12,5 +12,5 @@ public class ShoppingCartItem
     [DataType(DataType.Currency)]
     [Column(TypeName = "decimal(18, 2)")]
     public decimal? Price { get; set; }
-    public int CartId { get; set;  }
+    public string? CartId { get; set;  }
 }

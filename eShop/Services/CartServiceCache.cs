@@ -22,22 +22,23 @@ namespace eShop.Services
             _telemetryClient = telemetryClient;
         }
 
-        public async Task<Cart> AddItem(string username, int itemId, decimal price, int quantity = 1)
+        public async Task AddItem(string username, int itemId, decimal price, int quantity = 1)
         {
             var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
             byte[] cartItemListByteArray = await _cache.GetAsync(GetCartItemListKey(username));
-            int _cartId;
+            //int _cartId;
 
             if (cartItemListByteArray.IsNullOrEmpty()) 
             {
-                _cartId = await generateCartId();
+                //_cartId = await generateCartId();
 
-                await _cache.SetStringAsync(_cartId.ToString(), username, options);
-                await _cache.SetStringAsync(username, _cartId.ToString(), options);
+               // await _cache.SetStringAsync(_cartId.ToString(), username, options);
+               // await _cache.SetStringAsync(username, _cartId.ToString(), options);
                 List<CartItem> cartItemList = new List<CartItem>();
                 CartItem cartItemToAdd = new CartItem(itemId, quantity, price);
                 //cartItemToAdd.SetCartId(_cartId);
-                cartItemToAdd.CartId = _cartId;
+                //cartItemToAdd.CartId = _cartId;
+                //cartItemToAdd.CartId = username;
                 cartItemList.Add(cartItemToAdd);
                 byte[] newCartItemByteArray = ConvertData<CartItem>.ObjectListToByteArray(cartItemList);
                 await _cache.SetAsync(GetCartItemListKey(username),newCartItemByteArray, options);
@@ -49,22 +50,23 @@ namespace eShop.Services
                 if (cartItem != null)
                 {
                     CartItem newCartItem = new CartItem(itemId, cartItem.Quantity+1, price);
-                    _cartId = cartItem.Id;
+                    //_cartId = cartItem.Id;
                     cartItemList.Remove(cartItem);
                     cartItemList.Add(newCartItem);
                 }
                 else
                 {
                     CartItem newCartItem = new CartItem(itemId, 1, price);
-                    string cartIdString = await _cache.GetStringAsync(username);
-                    if(cartIdString != null)
-                    {
-                        int cartId = Int32.Parse(cartIdString);
-                        //newCartItem.SetCartId(cartId);
-                        newCartItem.CartId = cartId;
-                    }
+                    //string cartIdString = await _cache.GetStringAsync(username);
+                    //if(cartIdString != null)
+                    //{
+                    //    int cartId = Int32.Parse(cartIdString);
+                    //    //newCartItem.SetCartId(cartId);
+                    //    //newCartItem.CartId = cartId;
+                    //    newCartItem.CartId = username;
+                    //}
 
-                    _cartId = newCartItem.CartId;
+                    //_cartId = newCartItem.CartId;
 
                     cartItemList.Add(newCartItem);
                 }
@@ -72,42 +74,38 @@ namespace eShop.Services
                 byte[] CartItemListToUpdateByteArray = ConvertData<CartItem>.ObjectListToByteArray(cartItemList);
                 await _cache.SetAsync(GetCartItemListKey(username), CartItemListToUpdateByteArray, options);
             }
-
-            Cart _cart = new Cart(username);
-            //_cart.setId(_cartId);
-            _cart.Id = _cartId;
-            return _cart;
         }
 
-        public async Task DeleteCart(int cartId)
+        public async Task DeleteCart(string username)
         {
-            string username = await _cache.GetStringAsync(cartId.ToString());
+            //string username = await _cache.GetStringAsync(cartId.ToString());
 
             if (username == null)
             {
                 return;
             }
-            await _cache.RemoveAsync(cartId.ToString());
-            await _cache.RemoveAsync(username);
+            //await _cache.RemoveAsync(cartId.ToString());
+            //await _cache.RemoveAsync(username);
             await _cache.RemoveAsync(GetCartItemListKey(username));
         }
 
         public async Task<Cart?> GetCart(string username)
         {
-            using (var operation = _telemetryClient.StartOperation<DependencyTelemetry>("AzureCacheForRedis"))
-            {
-                Cart cart = new Cart(username);
-                string cartIdString = await _cache.GetStringAsync(username);
-                if (cartIdString == null)
-                {
-                    return null;
-                }
-
-                int cartId = Int32.Parse(cartIdString);
-                cart.Id = cartId;
-
-                return cart;
-            }
+            //using (var operation = _telemetryClient.StartOperation<DependencyTelemetry>("AzureCacheForRedis"))
+            //{
+            //    Cart cart = new Cart(username);
+            //    string cartIdString = await _cache.GetStringAsync(username);
+            //    if (cartIdString == null)
+            //    {
+            //        return null;
+            //    }
+            //
+            //    int cartId = Int32.Parse(cartIdString);
+            //    cart.Id = cartId;
+            //
+            //    return cart;
+            //}
+            throw new NotImplementedException();
 
 
         }
@@ -121,34 +119,34 @@ namespace eShop.Services
         {
             var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
 
-            string anonymousId = await _cache.GetStringAsync(anonymousName);
-            if(anonymousId.IsNullOrEmpty())
-            { 
-                return; 
-            }
+            //string anonymousId = await _cache.GetStringAsync(anonymousName);
+            //if(anonymousId.IsNullOrEmpty())
+            //{ 
+            //    return; 
+            //}
             
             byte[] cartItemListByteArray = await _cache.GetAsync(GetCartItemListKey(anonymousName));
-            string existingCartId = await _cache.GetStringAsync(userName);
-            if (!existingCartId.IsNullOrEmpty())
+            if (cartItemListByteArray.IsNullOrEmpty())
             {
-                await _cache.RemoveAsync(existingCartId);
+                return;
             }
-            if (!cartItemListByteArray.IsNullOrEmpty())
+            //string existingCartId = await _cache.GetStringAsync(userName);
+            //if (!existingCartId.IsNullOrEmpty())
+            //{
+            //    await _cache.RemoveAsync(existingCartId);
+            //}
+            else 
             {
                 await _cache.SetAsync(GetCartItemListKey(userName), cartItemListByteArray, options);
-                await _cache.SetStringAsync(anonymousId, userName);
-                await _cache.SetStringAsync(userName, anonymousId);
-
             }
 
-            await _cache.RemoveAsync(anonymousName);
             await _cache.RemoveAsync(GetCartItemListKey(anonymousName));
         }
 
-        public async IAsyncEnumerable<CartItem> GetCartItems(int cartId)
+        public async IAsyncEnumerable<CartItem> GetCartItems(string username)
         {
 
-            string username = await _cache.GetStringAsync(cartId.ToString());
+            //string username = await _cache.GetStringAsync(cartId.ToString());
             if (username == null)
             {
                 yield return null;
