@@ -44,6 +44,10 @@
               "target": "Package",
               "version": "[2.21.0, )"
             },
+            "Microsoft.ApplicationInsights.Profiler.AspNetCore": {
+              "target": "Package",
+              "version": "[2.5.2, )"
+            },
             "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": {
               "target": "Package",
               "version": "[7.0.4, )"

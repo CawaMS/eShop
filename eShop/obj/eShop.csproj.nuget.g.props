@@ -12,6 +12,18 @@
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <SourceRoot Include="C:\Users\cawa\.nuget\packages\" />
   </ItemGroup>
+  <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <None Include="$(NuGetPackageRoot)microsoft.applicationinsights.profiler.aspnetcore\2.5.2\contentFiles\any\netstandard2.1\ServiceProfiler\TraceUpload.zip" Condition="Exists('$(NuGetPackageRoot)microsoft.applicationinsights.profiler.aspnetcore\2.5.2\contentFiles\any\netstandard2.1\ServiceProfiler\TraceUpload.zip')">
+      <NuGetPackageId>Microsoft.ApplicationInsights.Profiler.AspNetCore</NuGetPackageId>
+      <NuGetPackageVersion>2.5.2</NuGetPackageVersion>
+      <NuGetItemType>None</NuGetItemType>
+      <Pack>false</Pack>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>TraceUpload.zip</TargetPath>
+      <Private>True</Private>
+      <Link>ServiceProfiler\TraceUpload.zip</Link>
+    </None>
+  </ItemGroup>
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <Import Project="$(NuGetPackageRoot)microsoft.entityframeworkcore\7.0.4\buildTransitive\net6.0\Microsoft.EntityFrameworkCore.props" Condition="Exists('$(NuGetPackageRoot)microsoft.entityframeworkcore\7.0.4\buildTransitive\net6.0\Microsoft.EntityFrameworkCore.props')" />
     <Import Project="$(NuGetPackageRoot)microsoft.entityframeworkcore.design\7.0.4\build\net6.0\Microsoft.EntityFrameworkCore.Design.props" Condition="Exists('$(NuGetPackageRoot)microsoft.entityframeworkcore.design\7.0.4\build\net6.0\Microsoft.EntityFrameworkCore.Design.props')" />
