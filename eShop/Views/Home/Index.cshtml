@@ -62,13 +62,16 @@
                             <h4><b>@item.Name</b></h4>
                             <p>@item.Price</p>
                     <a asp-action="Details" asp-route-id="@item.Id">View details</a>
-                    <form asp-controller="Carts" asp-action="Create">
-                        <input value="Add to cart" type="submit" />
-                        <input type="hidden" asp-for="@item.Id" name="id" />
-                        <input type="hidden" asp-for="@item.Name" name="name" />
-                        <input type="hidden" asp-for="@item.Image" name="image" />
-                        <input type="hidden" asp-for="@item.Price" name="price" />
-                    </form>
+                    <!--
+                        <form asp-controller="Carts" asp-action="Create">
+                            <input value="Add to cart" type="submit" />
+                            <input type="hidden" asp-for="@item.Id" name="id" />
+                            <input type="hidden" asp-for="@item.Name" name="name" />
+                            <input type="hidden" asp-for="@item.Image" name="image" />
+                            <input type="hidden" asp-for="@item.Price" name="price" />
+                        </form>
+                    -->
+
                 </div>
             }
         </div>
