@@ -86,6 +86,7 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<eShopContext>();
+    await eShopContextSeed.SeedAsync(context, app.Logger);
 }
 
 using (var scope = app.Services.CreateScope())
