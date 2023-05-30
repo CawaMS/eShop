@@ -95,6 +95,9 @@ using (var scope = app.Services.CreateScope())
     var testUserPw = builder.Configuration.GetValue<string>("SeedUserPW");
 
     await SeedData.Initialize(services, "Admin@12345");
+
+    var eShopContext = services.GetRequiredService<eShopContext>();
+    await eShopContextSeed.SeedAsync(eShopContext, app.Logger);
 }
 
     // Configure the HTTP request pipeline.
