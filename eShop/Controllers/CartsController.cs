@@ -23,7 +23,6 @@ namespace eShop.Controllers
         
         public async Task<ActionResult> Index()
         {
-            Stopwatch sw = Stopwatch.StartNew();
 
             List<ShoppingCartItem> ShoppingList = new List<ShoppingCartItem>();
             var cart = await _cartService.GetCartAsync(GetOrSetBasketCookieAndUserName());
@@ -45,10 +44,6 @@ namespace eShop.Controllers
                 ShoppingList.Add(new ShoppingCartItem { Name=product.Name, Price=product.Price, Quantity=item.Quantity, CartId=cart.Id });
             }
 
-            sw.Stop();
-            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
-
-            ViewData["cartLoadTime"] = ms;
 
             return View(ShoppingList);
         }
@@ -65,7 +60,7 @@ namespace eShop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product productDetails)
         {
-            Stopwatch sw = Stopwatch.StartNew();
+
             if (productDetails?.Id == null)
             {
                 return RedirectToAction("Index","Home");
@@ -82,11 +77,6 @@ namespace eShop.Controllers
             var cart = await _cartService.AddItemToCart(username,
                 productDetails.Id, item.Price);
 
-
-            sw.Stop();
-            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
-
-            ViewData["AddToCartTimeMS"] = ms;
             ViewData["messageSuccess"] = $"Successful - added item {item.Name} ";
 
             return View(item);
@@ -120,13 +110,8 @@ namespace eShop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(int CartId)
         {
-            Stopwatch sw = Stopwatch.StartNew();
+
             await _cartService.DeleteCartAsync(CartId);
-
-            sw.Stop();
-            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
-
-            ViewData["cartDeleteTime"] = ms;
 
             return View();
             
