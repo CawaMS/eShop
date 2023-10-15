@@ -1,5 +1,5 @@
 .azure
-./eShop/bin
-./eShop/obj
-./eShop/eShop.csproj.user
-./eShop/appsettings.Development.json
+eShop/bin
+eShop/obj
+eShop/eShop.csproj.user
+eShop/appsettings.Development.json

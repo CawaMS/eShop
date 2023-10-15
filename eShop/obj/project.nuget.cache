@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "OS2reSD36PozK18xnHhXdDgleaU244/DQWxE6PIqwUy83k388a28/PrvNpKQW6iF17sIBkZa80xbKhBKKEL/5w==",
+  "dgSpecHash": "7l13gpjy1rPUEtzCPmyv9+gPqAEP/18I8wOKc7DTi0PmZhJhJT/uPVCPLVza0n9LbhAQaIusxVB+yuSKsclJEA==",
   "success": true,
   "projectFilePath": "C:\\Users\\cawa\\source\\repos\\eShop\\eShop\\eShop.csproj",
   "expectedPackageFiles": [
@@ -223,7 +223,11 @@
     "C:\\Users\\cawa\\.nuget\\packages\\system.threading.timer\\4.3.0\\system.threading.timer.4.3.0.nupkg.sha512",
     "C:\\Users\\cawa\\.nuget\\packages\\system.windows.extensions\\6.0.0\\system.windows.extensions.6.0.0.nupkg.sha512",
     "C:\\Users\\cawa\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
-    "C:\\Users\\cawa\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512"
+    "C:\\Users\\cawa\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
+    "C:\\Users\\cawa\\.nuget\\packages\\microsoft.netcore.app.ref\\7.0.11\\microsoft.netcore.app.ref.7.0.11.nupkg.sha512",
+    "C:\\Users\\cawa\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\7.0.11\\microsoft.windowsdesktop.app.ref.7.0.11.nupkg.sha512",
+    "C:\\Users\\cawa\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\7.0.11\\microsoft.aspnetcore.app.ref.7.0.11.nupkg.sha512",
+    "C:\\Users\\cawa\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\7.0.11\\microsoft.netcore.app.host.win-x64.7.0.11.nupkg.sha512"
   ],
   "logs": []
 }
