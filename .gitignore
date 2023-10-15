@@ -1,7 +1,5 @@
-.vs
-eShop/bin
-eShop/obj/Debug
-eShop/obj/Release/
-eShop/eShop.csproj.user
-eShop/Properties/*
-
+.azure
+./eShop/bin
+./eShop/obj
+./eShop/eShop.csproj.user
+./eShop/appsettings.Development.json
