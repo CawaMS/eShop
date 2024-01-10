@@ -4,7 +4,7 @@
     ViewData["Title"] = "Details";
 }
 
-<div>
+<div class="card">
     <img src="@Model.Image" />
     <h4><b>@Model.Name</b></h4>
     <p>@Model.Price</p>
@@ -16,4 +16,3 @@
         <input type="hidden" asp-for="@Model.Price" name="price" />
     </form>
 </div>
-

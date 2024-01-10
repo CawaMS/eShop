@@ -8,12 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationInsightsTelemetry();
-builder.Services.AddServiceProfiler();
 
 builder.Services.AddDbContext<eShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("eShopContext") ?? throw new InvalidOperationException("Connection string 'eShopContext' not found.")));
 
-// Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -22,20 +20,38 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddMvc();
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
 
+builder.Services.AddMvc();
+
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddRazorPages();
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<ICartService,CartServiceDB>();
-builder.Services.AddScoped<ICartItemService, CartItemServiceDB>();
-builder.Services.AddScoped<IProductService,ProductServiceDB>();
+//Adding Redis Provider for IDistributedCache
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
+    options.InstanceName = "eShopCache";
+});
+
+//Adding Session Provider, which automatically detects the configured IDistributedCache provider as the session store. In this case, Redis Cache
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromDays(14);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+//Using Redis Cache to implement services for optimizing data services performance
+builder.Services.AddScoped<ICartService,CartServiceCache>();
+
+//Using Redis Cache to implement services for optimizing data services performance
+builder.Services.AddScoped<IProductService,ProductServiceCacheAside>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    // Password settings.
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = true;
@@ -56,7 +72,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    // Cookie settings
     options.Cookie.HttpOnly = true;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
 
@@ -65,22 +80,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
-builder.Services.AddMemoryCache();
-
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromSeconds(10);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<eShopContext>();
-    context.Database.Migrate();
+    await eShopContextSeed.SeedAsync(context, app.Logger);
 }
 
 using (var scope = app.Services.CreateScope())
@@ -88,44 +94,27 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<ApplicationDbContext>();
     context.Database.Migrate();
-    // requires using Microsoft.Extensions.Configuration;
-    // Set password with the Secret Manager tool.
-    // dotnet user-secrets set SeedUserPW <pw>
-
     var testUserPw = builder.Configuration.GetValue<string>("SeedUserPW");
 
     await SeedData.Initialize(services, "Admin@12345");
-
-    var eShopContext = services.GetRequiredService<eShopContext>();
-    await eShopContextSeed.SeedAsync(eShopContext, app.Logger);
 }
 
-    // Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseMigrationsEndPoint();
-    }
-    else
-    {
-        app.UseExceptionHandler("/Home/Error");
-        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-        app.UseHsts();
-    }
-
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
 
 app.UseAuthorization();
+
 app.UseAuthorization();
 
+//using session service
 app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
-
 
 app.Run();

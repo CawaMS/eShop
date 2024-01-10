@@ -9,6 +9,8 @@ using eShop.Data;
 using eShop.Models;
 using eShop.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
+using eShop.Interfaces;
 
 namespace eShop.Controllers
 {
@@ -16,10 +18,12 @@ namespace eShop.Controllers
     public class ProductsController : Controller
     {
         private readonly eShopContext _context;
+        private readonly IProductService _productService;
 
-        public ProductsController(eShopContext context)
+        public ProductsController(eShopContext context, IProductService productService)
         {
             _context = context;
+            _productService = productService;
         }
 
         // GET: Products
@@ -71,8 +75,8 @@ namespace eShop.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(product);
-                await _context.SaveChangesAsync();
+                await _productService.AddProduct(product);
+
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
@@ -117,22 +121,15 @@ namespace eShop.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                try 
                 {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
+                    await _productService.UpdateProduct(product);
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!ProductExists(product.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    Problem(ex.Message);
                 }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
@@ -161,23 +158,18 @@ namespace eShop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Product == null)
+            try
             {
-                return Problem("Entity set 'eShopContext.Product'  is null.");
+                await _productService.DeleteProduct(id);
             }
-            var product = await _context.Product.FindAsync(id);
-            if (product != null)
+            catch (Exception ex) 
             {
-                _context.Product.Remove(product);
+                Problem(ex.Message);
             }
             
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductExists(int id)
-        {
-          return (_context.Product?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
     }
 }

@@ -1,10 +1,5 @@
-.vs
+.azure
 eShop/bin
-eShop/obj/Debug
-eShop/Properties/serviceDependencies.json
+eShop/obj
 eShop/eShop.csproj.user
-eShop/Properties/PublishProfiles/
-eShop/Properties/ServiceDependencies/
-eShop/Properties/serviceDependencies.eshop-db-cawa-001 - Web Deploy.json
-eShop/Properties/serviceDependencies.eshop-db-cawa-001 - Web Deploy.json.user
-eShop/obj/Release/
+eShop/appsettings.Development.json

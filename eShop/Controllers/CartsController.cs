@@ -3,6 +3,7 @@ using eShop.Models;
 using eShop.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 
 namespace eShop.Controllers
@@ -11,41 +12,40 @@ namespace eShop.Controllers
     {
         private readonly ICartService _cartService;
         private readonly IProductService _productService;
-        private readonly ICartItemService _cartItemService;
-        // GET: CartsController
 
-        public CartsController(ICartService cartService, IProductService productService, ICartItemService cartItemService)
+        public CartsController(ICartService cartService, IProductService productService)
         { 
             _cartService = cartService;
             _productService = productService;
-            _cartItemService = cartItemService;
         }
         
         public async Task<ActionResult> Index()
         {
 
             List<ShoppingCartItem> ShoppingList = new List<ShoppingCartItem>();
-            var cart = await _cartService.GetCartAsync(GetOrSetBasketCookieAndUserName());
-            if (cart == null)
+
+            string username = GetOrSetBasketCookieAndUserName();
+            List<CartItem> CartItemList = await _cartService.GetCartItems(username).ToListAsync();
+
+            if (CartItemList.IsNullOrEmpty())
             {
                 return View(ShoppingList);
             }
-
-            
-            List<CartItem> CartItemList = await _cartItemService.GetCartItemAsync(cart.Id);
-
-            foreach (var item in CartItemList)
+            else 
             {
-                var product = await _productService.GetProductByIdAsync(item.ItemId);
-                if (product == null)
+                foreach (var item in CartItemList)
                 {
-                    return View();
+                    var product = await _productService.GetProductByIdAsync(item.ItemId);
+                    if (product == null)
+                    {
+                        return View();
+                    }
+                    ShoppingList.Add(new ShoppingCartItem { Name=product.Name, Price=product.Price, Quantity=item.Quantity, CartId=username });
                 }
-                ShoppingList.Add(new ShoppingCartItem { Name=product.Name, Price=product.Price, Quantity=item.Quantity, CartId=cart.Id });
+
+                return View(ShoppingList);
             }
 
-
-            return View(ShoppingList);
         }
 
         // GET: CartsController/Details/5
@@ -60,27 +60,16 @@ namespace eShop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product productDetails)
         {
-
             if (productDetails?.Id == null)
             {
                 return RedirectToAction("Index","Home");
             }
 
-            var item = await _productService.GetProductByIdAsync(productDetails.Id);
-            if (item == null)
-            {
-                ViewData["messageFailed"] = "Failed to add item - not found";
-                return RedirectToAction("Index", "Home");
-            }
 
             var username = GetOrSetBasketCookieAndUserName();
-            var cart = await _cartService.AddItemToCart(username,
-                productDetails.Id, item.Price);
+            await _cartService.AddItem(username, productDetails.Id, productDetails.Price);
 
-            ViewData["messageSuccess"] = $"Successful - added item {item.Name} ";
-
-            return View(item);
-            //return RedirectToAction("Index", "Home");
+            return View(productDetails);
         }
 
         // GET: CartsController/Edit/5
@@ -108,10 +97,10 @@ namespace eShop.Controllers
         // POST: CartsController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(int CartId)
+        public async Task<ActionResult> Delete(string CartId)
         {
+            await _cartService.DeleteCart(CartId);
 
-            await _cartService.DeleteCartAsync(CartId);
 
             return View();
             

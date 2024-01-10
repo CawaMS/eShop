@@ -1,40 +1,42 @@
-﻿namespace eShop.Models;
+﻿using System.Linq;
 
-public class Cart:BaseEntity
+namespace eShop.Models;
+
+[Serializable]
+public class Cart
 {
-    public string BuyerId { get; private set; }
-    private readonly List<CartItem> _items = new List<CartItem>();
-    public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();
-
-
-    public int TotalItems => _items.Sum(i => i.Quantity);
+    public int Id { get; set; }
+    public string BuyerId { get; set; }
+    public IAsyncEnumerable<CartItem> _items { get; set; }
+    public int TotalItems => _items.SumAsync(i => i.Quantity).Result;
 
     public Cart(string buyerId)
     {
         BuyerId = buyerId;
     }
 
-
-    public void AddItem(int itemId, decimal unitPrice, int quantity = 1)
+    public async Task AddItemAsync(int itemId, decimal unitPrice, int quantity = 1)
     {
-        if (!Items.Any(i => i.ItemId == itemId))
+        var existingItem = await _items.FirstOrDefaultAsync(i => i.ItemId == itemId);
+        if (existingItem == null)
         {
-            _items.Add(new CartItem(itemId, quantity, unitPrice));
-            return;
+            var newItem = new CartItem(itemId, quantity, unitPrice);
+            _items = _items.Append(newItem);
         }
-        var existingItem = Items.First(i => i.ItemId == itemId);
-        existingItem.AddQuantity(quantity);
+        else
+        {
+            existingItem.AddQuantity(quantity);
+        }
     }
 
-    public void RemoveEmptyItems()
+    public async Task CopyItemAsync(CartItem item)
     {
-        _items.RemoveAll(i => i.Quantity == 0);
+        _items = _items.Append(item);
     }
 
-    public void SetNewBuyerId(string buyerId)
+    public async Task RemoveEmptyItemsAsync()
     {
-        BuyerId = buyerId;
+        var nonEmptyItems = await _items.Where(i => i.Quantity > 0).ToListAsync();
+        _items = nonEmptyItems.ToAsyncEnumerable();
     }
-
-
 }
