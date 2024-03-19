@@ -22,6 +22,7 @@ var cachePrivateEndpointName = 'cache-privateEndpoint'
 //added for Redis Cache
 var cachePvtEndpointDnsGroupName = 'cacheDnsGroup'
 var abbrs = loadJsonContent('./abbreviations.json')
+var redisPort = 10000
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   name: '${prefix}-vnet'
@@ -133,7 +134,7 @@ resource databasePrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01'
 
 // added for Redis Cache
 resource privateDnsZoneCache 'Microsoft.Network/privateDnsZones@2020-06-01' = {
-  name: 'privatelink.redis.cache.windows.net'
+  name: 'privatelink.redisenterprise.cache.azure.net'
   location: 'global'
   tags: tags
   dependsOn:[
@@ -144,7 +145,7 @@ resource privateDnsZoneCache 'Microsoft.Network/privateDnsZones@2020-06-01' = {
  //added for Redis Cache
 resource privateDnsZoneLinkCache 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
  parent: privateDnsZoneCache
- name: 'privatelink.redis.cache.windows.net-applink'
+ name: 'privatelink.redisenterprise.cache.azure.net-applink'
  location: 'global'
  properties: {
    registrationEnabled: false
@@ -168,7 +169,7 @@ resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = 
         properties: {
           privateLinkServiceId: redisCache.id
           groupIds: [
-            'redisCache'
+            'redisEnterprise'
           ]
         }
       }
@@ -179,7 +180,7 @@ resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = 
     properties: {
       privateDnsZoneConfigs: [
         {
-          name: 'privatelink-redis-cache-windows-net'
+          name: 'privatelink-redisenterprise-cache-azure-net'
           properties: {
             privateDnsZoneId: privateDnsZoneCache.id
           }
@@ -212,9 +213,6 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
       //"ENABLE_ORYX_BUILD" : "false", "SCM_DO_BUILD_DURING_DEPLOYMENT" : "false",
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'false'
       ENABLE_ORYX_BUILD: 'false'
-      //TODO: add settings for Redis Cache
-      CACHELOCATION: 'rediss://${redisCache.name}.redis.cache.windows.net:6380/0'
-      CACHEKEY: redisCache.listKeys().primaryKey
     }
   }
 
@@ -230,7 +228,7 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
         type:'SQLAzure'
       }
       ESHOPREDISCONNECTION:{
-        value:'${redisCache.properties.hostName}:6380,password=${redisCache.listKeys().primaryKey},ssl=True,abortConnect=False'
+        value:'${redisCache.properties.hostName}:10000,password=${redisdatabase.listKeys().primaryKey},ssl=True,abortConnect=False'
         type: 'Custom'
       }
     }
@@ -334,21 +332,32 @@ module keyvault 'core/security/keyvault.bicep' = {
 }
 
 //added for Redis Cache
-resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
+resource redisCache 'Microsoft.Cache/redisEnterprise@2024-02-01' = {
   location:location
   name:cacheServerName
-  properties:{
-    sku:{
-      capacity: 1
-      family:'C'
-      name:'Standard'
-    }
-    enableNonSslPort:false
-    redisVersion:'6'
-    publicNetworkAccess:'Disabled'
+  sku:{
+    capacity:2
+    name:'Enterprise_E10'
   }
+}     
 
-}    
+resource redisdatabase 'Microsoft.Cache/redisEnterprise/databases@2024-02-01' = {
+  name: 'default'
+  parent: redisCache
+  properties: {
+    evictionPolicy:'NoEviction'
+    clusteringPolicy: 'EnterpriseCluster'
+    modules: [
+      {
+        name: 'RediSearch'
+      }
+      {
+        name: 'RedisJSON'
+      }
+    ]
+    port: redisPort
+  }
+}
 
 output WEB_URI string = 'https://${web.properties.defaultHostName}'
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsightsResources.outputs.connectionString
