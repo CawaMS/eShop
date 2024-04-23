@@ -27,7 +27,29 @@ This project framework provides the following features:
 
 - Create an Azure Redis Cache and obtain the connection string. [Instruction](https://learn.microsoft.com/azure/azure-cache-for-redis/quickstart-create-redis)
 
-### Quickstart - running the project locally with an instance of Azure Cache for Redis in your Azure subscription
+### Quick Start: Deploy the project to Azure
+1. Open a command prompt
+2. Change directory to the project folder where azure.yaml file is located
+3. Run:
+    ```
+    azd up
+    ```
+4. Follow command prompt to enter environment name and select subscription
+5. This will create all the resources needed to run the sample:
+- Azure App Services Web App
+- Azure Cache for Redis
+- Azure SQL server and databases
+- VNET and subnets for security
+- private endpoints for connecting the resources to the subnets
+
+6. The azd commands do not do Entity Framework Migration. Repeat the section above for running EF migrations on the databases from your local development machine. Add firewall rules to the SQL database if you experience connection errors due to public access not allowed.
+
+7. To clean up the environment, run 
+    ```
+    azd down
+    ```
+
+### Running the project locally with an instance of Azure Cache for Redis in your Azure subscription
 
 1. Obtain the sample code.
     * Download zip. Extract the .zip file
@@ -58,28 +80,6 @@ dotnet user-secrets set "ConnectionStrings:eShopRedisConnection" "your_cache_con
 ```
 
 9. Next step,  follow the **Deploy the proejct to Azure** section below to run your web application in the Cloud.
-
-## Deploy the project to Azure
-1. Open a command prompt
-2. Change directory to the project folder where azure.yaml file is located
-3. Run:
-    ```
-    azd up
-    ```
-4. Follow command prompt to enter environment name and select subscription
-5. This will create all the resources needed to run the sample:
-- Azure App Services Web App
-- Azure Cache for Redis
-- Azure SQL server and databases
-- VNET and subnets for security
-- private endpoints for connecting the resources to the subnets
-
-6. The azd commands do not do Entity Framework Migration. Repeat the section above for running EF migrations on the databases from your local development machine. Add firewall rules to the SQL database if you experience connection errors due to public access not allowed.
-
-7. To clean up the environment, run 
-    ```
-    azd down
-    ```
 
 
 ## Demo
