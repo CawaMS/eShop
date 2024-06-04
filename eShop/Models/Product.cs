@@ -23,5 +23,7 @@ public class Product
     public string? Image { get; set; }
 
     public string? category { get; set; }
+
+    public string? description { get; set; }
 }
 

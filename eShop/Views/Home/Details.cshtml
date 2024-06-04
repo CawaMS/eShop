@@ -8,6 +8,7 @@
     <img src="@Model.Image" />
     <h4><b>@Model.Name</b></h4>
     <p>@Model.Price</p>
+    <p>@Model.description</p>
     <form asp-controller="Carts" asp-action="Create">
         <input class="button" value="Add to cart" type="submit" />
         <input type="hidden" asp-for="@Model.Id" name="id" />

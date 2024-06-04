@@ -5,7 +5,7 @@
 namespace eShop.Migrations
 {
     /// <inheritdoc />
-    public partial class migration101423 : Migration
+    public partial class june_3_add_description : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,7 +33,8 @@ namespace eShop.Migrations
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Brand = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    category = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    category = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
