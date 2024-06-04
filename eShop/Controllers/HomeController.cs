@@ -9,8 +9,10 @@ using NRedisStack;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using StackExchange.Redis;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace eShop.Controllers
 {
@@ -109,6 +111,9 @@ namespace eShop.Controllers
                                 .SetSortBy("__description_embeddings_score")
                                 .Dialect(2));
 
+            string _recommendation = "";
+            List<Product> _recommendedProducts = new List<Product>();
+
             foreach (var doc in res1.Documents)
             {
                 foreach (var item in doc.GetProperties())
@@ -119,11 +124,29 @@ namespace eShop.Controllers
                         Console.WriteLine("Item Name: " + _db.HashGet(doc.Id, "Name"));
                         Console.WriteLine("Item description: " + _db.HashGet(doc.Id, "description"));
                         Console.WriteLine();
+                        if(!(doc.Id).Equals("id:"+_product.Id.ToString()))
+                        {
+                            _recommendation += $"id: {doc.Id}, score: {item.Value} " + " " +
+                                                 "Item Name: " + _db.HashGet(doc.Id, "Name") + " "+
+                                                "Item description: " + _db.HashGet(doc.Id, "description");
+
+                            _recommendedProducts.Add(await _productService.GetProductByIdAsync(getId(doc.Id)));
+                        }
                     }
                 }
             }
 
+            ViewData["recommendation"] = _recommendation;
+            ViewData["recommendedProudcts"] = _recommendedProducts;
+
+
             return View(_product);
+        }
+
+        private int getId(string hashId)
+        {
+            string[] words = hashId.Split(':');
+            return Int32.Parse(words[1]);
         }
     }
 }

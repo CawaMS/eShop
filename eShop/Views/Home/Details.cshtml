@@ -17,3 +17,25 @@
         <input type="hidden" asp-for="@Model.Price" name="price" />
     </form>
 </div>
+
+<br />
+
+<h3>Recommended item</h3>
+
+<br />
+
+<div>
+    @{
+        foreach (var _product in ViewData["recommendedProudcts"] as List<Product>)
+        {
+            <img src="@_product.Image" height="100" width="100"/>
+            <h4><b>@_product.Name</b></h4>
+            <p>@_product.Price</p>
+            <p>@_product.description</p>
+        }
+    }
+</div>
+
+<div>
+    @ViewData["recommendation"]
+</div>
