@@ -45,6 +45,12 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddStackExchangeRedisOutputCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
+    options.InstanceName = "eShopOutputCache";
+});
+
 //Using Redis Cache to implement services for optimizing data services performance
 builder.Services.AddScoped<ICartService,CartServiceCache>();
 

@@ -4,6 +4,7 @@ using eShop.Models;
 using eShop.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using NRedisStack;
 using NRedisStack.RedisStackCommands;
@@ -88,12 +89,10 @@ namespace eShop.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        [OutputCache]
         public async Task<IActionResult> Details(int id)
         {
-            Stopwatch sw = Stopwatch.StartNew();
             Product _product = await _productService.GetProductByIdAsync(id);
-            sw.Stop();
-            double ms = sw.ElapsedTicks / (Stopwatch.Frequency / (1000.0));
 
             if (_product == null)
             {
