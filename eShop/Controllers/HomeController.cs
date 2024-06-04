@@ -5,6 +5,10 @@ using eShop.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NRedisStack;
+using NRedisStack.RedisStackCommands;
+using NRedisStack.Search;
+using StackExchange.Redis;
 using System.Diagnostics;
 using System.Linq;
 
@@ -14,11 +18,15 @@ namespace eShop.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductService _productService;
+        private readonly ConnectionMultiplexer _redis;
+        private readonly IDatabase _db;
 
-        public HomeController(ILogger<HomeController> logger, IProductService productService)
+        public HomeController(ILogger<HomeController> logger, IProductService productService, IConfiguration config)
         {
             _logger = logger;
             _productService = productService;
+            _redis = ConnectionMultiplexer.Connect(config["redisConnection"]);
+            _db = _redis.GetDatabase();
 
         }
 
@@ -92,7 +100,28 @@ namespace eShop.Controllers
 
             HttpContext.Session.SetInt32(SessionConstants.LastViewed, id);
 
-            ViewData["pageLoadTime"] = ms;
+            SearchCommands ft = _db.FT();
+            var descriptionEmbeddings = _db.HashGet("id:"+id, "description_embeddings");
+            // search through the descriptions
+            var res1 = ft.Search("vss_products",
+                                new Query("*=>[KNN 2 @description_embeddings $query_vec]")
+                                .AddParam("query_vec", descriptionEmbeddings)
+                                .SetSortBy("__description_embeddings_score")
+                                .Dialect(2));
+
+            foreach (var doc in res1.Documents)
+            {
+                foreach (var item in doc.GetProperties())
+                {
+                    if (item.Key == "__description_embeddings_score")
+                    {
+                        Console.WriteLine($"id: {doc.Id}, score: {item.Value}");
+                        Console.WriteLine("Item Name: " + _db.HashGet(doc.Id, "Name"));
+                        Console.WriteLine("Item description: " + _db.HashGet(doc.Id, "description"));
+                        Console.WriteLine();
+                    }
+                }
+            }
 
             return View(_product);
         }
