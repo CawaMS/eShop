@@ -120,6 +120,8 @@ app.UseAuthorization();
 //using session service
 app.UseSession();
 
+app.UseOutputCache();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
