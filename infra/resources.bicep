@@ -2,14 +2,13 @@ param name string
 param location string
 param resourceToken string
 param tags object
-@secure()
-@description('the SQL database user and app password')
-param databasePassword string
+param userLogin string
+param userObjectId string
+param tenantId string
 
 var prefix = '${name}-${resourceToken}'
 //added for Redis Cache
 var cacheServerName = '${prefix}-redisCache'
-param sqlAdmin string = 'sqlAdmin'
 var databaseSubnetName = 'database-subnet'
 var databaseDnsZoneName = 'privatelink${environment().suffixes.sqlServerHostname}'
 var databasePrivateEndpointName = 'database-privateEndpoint'
@@ -220,11 +219,11 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     name:'connectionstrings'
     properties:{
       ESHOPCONTEXT:{
-        value:'Server=tcp:${sqlserver.properties.fullyQualifiedDomainName},1433;Initial Catalog=${sqlserver::database.name};Persist Security Info=False;User ID=${sqlAdmin};Password=${databasePassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+        value: 'Server=tcp:${sqlserver.properties.fullyQualifiedDomainName},1433;Database=${database.name};Authentication=Active Directory Managed Identity;'
         type:'SQLAzure'
       }
       DEFAULTCONNECTION:{
-        value: 'Server=tcp:${sqlserver.properties.fullyQualifiedDomainName},1433;Initial Catalog=${sqlserver::database.name};Persist Security Info=False;User ID=${sqlAdmin};Password=${databasePassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+        value: 'Server=tcp:${sqlserver.properties.fullyQualifiedDomainName},1433;Database=${database.name};Authentication=Active Directory Managed Identity;'
         type:'SQLAzure'
       }
       ESHOPREDISCONNECTION:{
@@ -296,30 +295,73 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03
   })
 }
 
-module applicationInsightsResources './core/monitor/applicationinsights.bicep' = {
-  name: 'applicationinsights-resources'
-  params: {
-    name: '${prefix}-appinsights'
-    dashboardName:'${prefix}-dashboard'
-    location: location
-    tags: tags
-    logAnalyticsWorkspaceId: logAnalyticsWorkspace.id
-  }
+// module applicationInsightsResources './core/monitor/applicationinsights.bicep' = {
+//   name: 'applicationinsights-resources'
+//   params: {
+//     name: '${prefix}-appinsights'
+//     dashboardName:'${prefix}-dashboard'
+//     location: location
+//     tags: tags
+//     logAnalyticsWorkspaceId: logAnalyticsWorkspace.id
+//   }
   
-}
+// }
 
-resource sqlserver 'Microsoft.Sql/servers@2023-02-01-preview' = {
+resource sqlserver 'Microsoft.Sql/servers@2022-08-01-preview' = {
   location: location
   name:'${prefix}-sqlserver'
   tags:tags
   properties:{
-    administratorLogin:sqlAdmin
-    administratorLoginPassword:databasePassword
     publicNetworkAccess:'Disabled'
+    administrators: {
+      administratorType: 'ActiveDirectory'
+      azureADOnlyAuthentication: true
+      principalType: 'User'
+      login: userLogin
+      sid: userObjectId
+      tenantId: tenantId
+    }
   }
-  resource database 'databases' = {
-    name: 'database'
-    location: location
+  // resource sqlserverADOnlyAuth 'azureADOnlyAuthentications' = {
+  //   name: 'Default'
+  //   properties: {
+  //     azureADOnlyAuthentication: true
+  //   }
+  // }
+  // resource entraadmin 'administrators' = {
+  //   name: 'ActiveDirectory'
+  //   properties: {
+  //     administratorType: 'ActiveDirectory'
+  //     principalType: 'Application'
+  //     login: userLogin
+  //     sid: userObjectId
+  //     tenantId: tenantId
+  //   }
+  // }
+}
+
+resource database 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
+  parent:sqlserver
+  name: 'database'
+  location: location
+}
+
+// Grant the Web App's Managed Identity access to the SQL Database
+// resource sqlAdminRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+//   name: guid(web.name, 'sql-admin-role-assignment')
+//   properties: {
+//     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'db0b5fdb-5a0c-4c9a-8b6d-5e1bcb7d1b4c') // SQL DB Contributor role
+//     principalId: web.identity.principalId
+//   }
+//   scope: database
+// } 
+
+resource sqlDatabaseRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(web.name, 'Contributor')
+  scope: database
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
+    principalId: web.identity.principalId
   }
 }
 
@@ -360,4 +402,4 @@ resource redisdatabase 'Microsoft.Cache/redisEnterprise/databases@2024-02-01' = 
 }
 
 output WEB_URI string = 'https://${web.properties.defaultHostName}'
-output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsightsResources.outputs.connectionString
+//output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsightsResources.outputs.connectionString
