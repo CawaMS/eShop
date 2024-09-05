@@ -95,6 +95,7 @@ using (var scope = app.Services.CreateScope())
     var context = services.GetRequiredService<eShopContext>();
     await eShopContextSeed.SeedAsync(context, app.Logger);
     await DescriptionEmbeddings.GenerateEmbeddingsInRedis(context, app.Logger, app.Configuration);
+    // await DescriptionEmbeddings.GenerateEmbeddingsInRedis(context, app.Logger, builder.Configuration);
 }
 
 using (var scope = app.Services.CreateScope())

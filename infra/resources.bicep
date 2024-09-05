@@ -5,6 +5,12 @@ param tags object
 param userLogin string
 param userObjectId string
 param tenantId string
+param openAiSku object = {
+  name:'S0'
+}
+
+var embeddingModelName = 'text-embedding-ada-002'
+var embeddingDeploymentCapacity = 30
 
 var prefix = '${name}-${resourceToken}'
 //added for Redis Cache
@@ -212,6 +218,9 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
       //"ENABLE_ORYX_BUILD" : "false", "SCM_DO_BUILD_DURING_DEPLOYMENT" : "false",
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'false'
       ENABLE_ORYX_BUILD: 'false'
+      aoaiConnection: cognitiveAccount.properties.endpoint
+      aoaiKey: cognitiveAccount.listKeys().key1
+      textEmbeddingsDeploymentName: textembeddingdeployment.name
     }
   }
 
@@ -398,6 +407,36 @@ resource redisdatabase 'Microsoft.Cache/redisEnterprise/databases@2024-02-01' = 
       }
     ]
     port: redisPort
+  }
+}
+
+//azure open ai resource
+resource cognitiveAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
+  name: '${name}-csaccount'
+  location: location
+  tags: tags
+  kind: 'OpenAI'
+  properties: {
+    customSubDomainName: '${name}-csaccount'
+    publicNetworkAccess: 'Enabled'
+  }
+  sku: openAiSku
+}
+
+//ada text embedding service
+resource textembeddingdeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
+  name:'${name}-textembedding'
+  parent: cognitiveAccount
+  properties:{
+    model: {
+      format: 'OpenAI'
+      name: embeddingModelName
+      version: '2'
+    }
+  }
+  sku: {
+    name: 'Standard'
+    capacity: embeddingDeploymentCapacity
   }
 }
 

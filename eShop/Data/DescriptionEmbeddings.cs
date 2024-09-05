@@ -14,7 +14,7 @@ public class DescriptionEmbeddings
 
     public static async Task GenerateEmbeddingsInRedis(eShopContext eShopContext, ILogger logger, IConfiguration config)
     {
-        string? redisConnection = config["redisConnection"];
+        string? redisConnection = config["ConnectionStrings:ESHOPREDISCONNECTION"];
         //<cache_name>.eastus.redisenterprise.cache.azure.net:10000,password=<primary_access_key>,ssl=True,abortConnect=False
         string? aoaiConnection = config["aoaiConnection"];
         string? aoaiKey = config["aoaiKey"];

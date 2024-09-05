@@ -28,7 +28,7 @@ namespace eShop.Controllers
         {
             _logger = logger;
             _productService = productService;
-            _redis = ConnectionMultiplexer.Connect(config["redisConnection"]);
+            _redis = ConnectionMultiplexer.Connect(config["ConnectionStrings:ESHOPREDISCONNECTION"]);
             _db = _redis.GetDatabase();
 
         }
