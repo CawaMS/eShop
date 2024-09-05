@@ -8,6 +8,7 @@
     <img src="@Model.Image" />
     <h4><b>@Model.Name</b></h4>
     <p>@Model.Price</p>
+    <p>@Model.description</p>
     <form asp-controller="Carts" asp-action="Create">
         <input class="button" value="Add to cart" type="submit" />
         <input type="hidden" asp-for="@Model.Id" name="id" />
@@ -15,4 +16,26 @@
         <input type="hidden" asp-for="@Model.Image" name="image" />
         <input type="hidden" asp-for="@Model.Price" name="price" />
     </form>
+</div>
+
+<br />
+
+<h3>Recommended item</h3>
+
+<br />
+
+<div>
+    @{
+        foreach (var _product in ViewData["recommendedProudcts"] as List<Product>)
+        {
+            <img src="@_product.Image" height="100" width="100"/>
+            <h4><b>@_product.Name</b></h4>
+            <p>@_product.Price</p>
+            <p>@_product.description</p>
+        }
+    }
+</div>
+
+<div>
+    @ViewData["recommendation"]
 </div>

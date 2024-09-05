@@ -13,16 +13,17 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
-@secure()
-@description('The SQL database user and app password')
-param databasePassword string
-
 // Optional parameters to override the default azd resource naming conventions.
 // Add the following to main.parameters.json to provide values:
 // "resourceGroupName": {
 //      "value": "myGroupName"
 // }
 param resourceGroupName string = ''
+
+param _userLogin string
+param _userObjectId string
+param _tenantId string
+
 
 var abbrs = loadJsonContent('./abbreviations.json')
 
@@ -60,7 +61,9 @@ module resources 'resources.bicep' = {
     location: location
     resourceToken: resourceToken
     tags: tags
-    databasePassword: databasePassword
+    userLogin:_userLogin
+    userObjectId:_userObjectId
+    tenantId:_tenantId
   }
 }
 

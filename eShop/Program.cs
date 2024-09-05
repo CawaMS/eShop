@@ -3,6 +3,7 @@ using eShop.Interfaces;
 using eShop.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +43,12 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromDays(14);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddStackExchangeRedisOutputCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
+    options.InstanceName = "eShopOutputCache";
 });
 
 //Using Redis Cache to implement services for optimizing data services performance
@@ -87,6 +94,8 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<eShopContext>();
     await eShopContextSeed.SeedAsync(context, app.Logger);
+    await DescriptionEmbeddings.GenerateEmbeddingsInRedis(context, app.Logger, app.Configuration);
+    // await DescriptionEmbeddings.GenerateEmbeddingsInRedis(context, app.Logger, builder.Configuration);
 }
 
 using (var scope = app.Services.CreateScope())
@@ -111,6 +120,8 @@ app.UseAuthorization();
 
 //using session service
 app.UseSession();
+
+app.UseOutputCache();
 
 app.MapControllerRoute(
     name: "default",

@@ -12,15 +12,15 @@ using eShop.Data;
 namespace eShop.Migrations
 {
     [DbContext(typeof(eShopContext))]
-    [Migration("20231015055442_migration101423")]
-    partial class migration101423
+    [Migration("20240603232303_june_3_add_description")]
+    partial class june_3_add_description
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("ProductVersion", "8.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -95,6 +95,9 @@ namespace eShop.Migrations
                         .HasColumnType("decimal(18, 2)");
 
                     b.Property<string>("category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("description")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
