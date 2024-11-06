@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 
+#pragma warning disable EXTEXP0018 // pragma warning for HybridCache
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationInsightsTelemetry();
@@ -29,6 +31,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddHybridCache();
 
 //Adding Redis Provider for IDistributedCache
 builder.Services.AddStackExchangeRedisCache(options =>

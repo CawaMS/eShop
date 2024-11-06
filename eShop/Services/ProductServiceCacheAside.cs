@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Extensions.Caching.Hybrid;
 
 namespace eShop.Services
 {
@@ -20,6 +21,7 @@ namespace eShop.Services
         private readonly IDistributedCache _cache;
         private readonly eShopContext _context;
         private readonly TelemetryClient _telemetryClient;
+        private readonly HybridCache _hybridCache;
 
         public ProductServiceCacheAside(IDistributedCache cache, eShopContext context, TelemetryClient telemetryClient) 
         { 
@@ -76,57 +78,29 @@ namespace eShop.Services
 
         public async IAsyncEnumerable<Product> GetAllProductsAsync()
         {
-            using (var operation = _telemetryClient.StartOperation<DependencyTelemetry>("AzureCacheForRedis"))
+            var allProducts = await _hybridCache.GetOrCreateAsync(CacheKeyConstants.AllProductKey, async _ =>
             {
-                var byteArrayFromCache = await _cache.GetAsync(CacheKeyConstants.AllProductKey);
-                if (byteArrayFromCache.IsNullOrEmpty())
-                {
-                    if (_context.Product == null) throw new Exception("Entity set 'eShopContext.Product'  is null.");
-                    List<Product> AllProductList = await _context.Product.ToListAsync();
-                    var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
-                    if (AllProductList.IsNullOrEmpty())
-                    {
-                        yield break;
-                    }
-                    byte[] AllProductByteArray = await ConvertData<Product>.ObjectListToByteArray(AllProductList);
-                    await _cache.SetAsync(CacheKeyConstants.AllProductKey, AllProductByteArray, options);
-                    foreach (var product in AllProductList)
-                    {
-                        yield return product;
-                    }
-                }
-                else 
-                {
-                    IAsyncEnumerable<Product> productList = ConvertData<Product>.ByteArrayToObjectList(byteArrayFromCache);
-                    await foreach (var product in productList)
-                    {
-                        yield return product;
-                    }
-                }
+                var products = await _context.Product.ToListAsync();
+                return products;
+            });
 
-                
-
+            foreach (var product in allProducts)
+            {
+                yield return product;
             }
 
-         }
+        }
 
         public async Task<Product?> GetProductByIdAsync(int productId)
         {
-            var byteArrayFromCache = await _cache.GetAsync(CacheKeyConstants.ProductPrefix + productId);
-            if (byteArrayFromCache.IsNullOrEmpty())
+           
+            var productById = await _hybridCache.GetOrCreateAsync(CacheKeyConstants.ProductPrefix + productId, async _ =>
             {
-                var productById = await Task.Run(() => _context.Product.Where(product => product.Id == productId).FirstOrDefault());
-                if (productById == null)
-                {
-                    return null;
-                }
-                var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
-                byte[] ProductByIdByteArray = await ConvertData<Product>.ObjectToByteArray(productById);
-                await _cache.SetAsync(CacheKeyConstants.ProductPrefix + productId, ProductByIdByteArray, options);
-                return productById;
-            }
+                var product = await _context.Product.Where(product => product.Id == productId).FirstOrDefaultAsync();
+                return product;
+            });
 
-            return await ConvertData<Product>.ByteArrayToObject(byteArrayFromCache);
+            return productById;
         }
 
         private bool ProductExists(int id)

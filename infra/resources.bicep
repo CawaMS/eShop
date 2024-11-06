@@ -204,7 +204,7 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     serverFarmId: appServicePlan.id
     siteConfig: {
       alwaysOn: true
-      linuxFxVersion: 'DOTNETCORE|8.0'
+      linuxFxVersion: 'DOTNETCORE|9.0'
     }
     httpsOnly: true
   }
@@ -413,7 +413,7 @@ resource redisdatabase 'Microsoft.Cache/redisEnterprise/databases@2024-02-01' = 
 //azure open ai resource
 resource cognitiveAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   name: '${name}-csaccount'
-  location: location
+  location: 'australiaeast'
   tags: tags
   kind: 'OpenAI'
   properties: {
