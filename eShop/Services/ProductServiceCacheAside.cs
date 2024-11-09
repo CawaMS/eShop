@@ -22,12 +22,15 @@ namespace eShop.Services
         private readonly eShopContext _context;
         private readonly TelemetryClient _telemetryClient;
         private readonly HybridCache _hybridCache;
+        private readonly ILogger _logger;
 
-        public ProductServiceCacheAside(IDistributedCache cache, eShopContext context, TelemetryClient telemetryClient) 
+        public ProductServiceCacheAside(IDistributedCache cache, eShopContext context, TelemetryClient telemetryClient, ILogger<ProductServiceCacheAside> logger, HybridCache hybridCache) 
         { 
             _cache = cache;
             _context = context;
             _telemetryClient = telemetryClient;
+            _logger = logger;
+            _hybridCache = hybridCache;
         }
 
         public async Task AddProduct(Product product)
@@ -78,8 +81,22 @@ namespace eShop.Services
 
         public async IAsyncEnumerable<Product> GetAllProductsAsync()
         {
+            Console.WriteLine("Getting all products");
+            _logger.LogInformation("Getting all products");
+            Console.WriteLine(_hybridCache.ToString());
+            _logger.LogInformation(_hybridCache.ToString());
             var allProducts = await _hybridCache.GetOrCreateAsync(CacheKeyConstants.AllProductKey, async _ =>
             {
+                if (_context.Product == null)
+                {
+                    Console.WriteLine("No products found");
+                    _logger.LogInformation("No products found");
+                    throw new Exception("No products found");
+                }
+                else {
+                    Console.WriteLine(_context.Product.Count());
+                    _logger.LogInformation(_context.Product.Count().ToString());
+                }
                 var products = await _context.Product.ToListAsync();
                 return products;
             });

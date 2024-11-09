@@ -28,7 +28,7 @@ public class DescriptionEmbeddings
 
         AzureKeyCredential credentials = new(aoaiKey);
 
-        OpenAIClient openAIClient = new OpenAIClient(aoaiEndpoint, credentials);
+        AzureOpenAIClient openAIClient = new AzureOpenAIClient(aoaiEndpoint, credentials);
 
         IEnumerable<Product> productList = eShopContext.Product.ToList();
         foreach (var _product in productList) 
@@ -64,15 +64,18 @@ public class DescriptionEmbeddings
         ));
     }
 
-    static float[] textToEmbeddings(string text, OpenAIClient _openAIClient, string embeddingsDeploymentName)
+    static float[] textToEmbeddings(string text, AzureOpenAIClient _openAIClient, string embeddingsDeploymentName)
     {
-        EmbeddingsOptions embeddingOptions = new EmbeddingsOptions()
-        {
-            DeploymentName = embeddingsDeploymentName,
-            Input = { text },
-        };
+        //EmbeddingsOptions embeddingOptions = new EmbeddingsOptions()
+        //{
+        //    DeploymentName = embeddingsDeploymentName,
+        //    Input = { text },
+        //};
 
-        return _openAIClient.GetEmbeddings(embeddingOptions).Value.Data[0].Embedding.ToArray();
+        //return _openAIClient.GetEmbeddings(embeddingOptions).Value.Data[0].Embedding.ToArray();
+
+        var embeddingClient = _openAIClient.GetEmbeddingClient(embeddingsDeploymentName);
+        return embeddingClient.GenerateEmbedding(text).Value.ToFloats().ToArray();
     }
 }
 

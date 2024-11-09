@@ -2,9 +2,6 @@ param name string
 param location string
 param resourceToken string
 param tags object
-param userLogin string
-param userObjectId string
-param tenantId string
 param openAiSku object = {
   name:'S0'
 }
@@ -209,7 +206,10 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     httpsOnly: true
   }
   identity: {
-    type: 'SystemAssigned'
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${managedIdentity.id}': {}
+    }
   }
   
   resource appSettings 'config' = {
@@ -316,6 +316,12 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03
   
 // }
 
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: 'mi-${resourceToken}'
+  location: location
+  tags: tags
+}
+
 resource sqlserver 'Microsoft.Sql/servers@2022-08-01-preview' = {
   location: location
   name:'${prefix}-sqlserver'
@@ -324,11 +330,10 @@ resource sqlserver 'Microsoft.Sql/servers@2022-08-01-preview' = {
     publicNetworkAccess:'Disabled'
     administrators: {
       administratorType: 'ActiveDirectory'
+      login:managedIdentity.name
+      sid: managedIdentity.properties.principalId
+      tenantId: subscription().tenantId
       azureADOnlyAuthentication: true
-      principalType: 'User'
-      login: userLogin
-      sid: userObjectId
-      tenantId: tenantId
     }
   }
   // resource sqlserverADOnlyAuth 'azureADOnlyAuthentications' = {
@@ -370,7 +375,7 @@ resource sqlDatabaseRoleAssignment 'Microsoft.Authorization/roleAssignments@2022
   scope: database
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-    principalId: web.identity.principalId
+    principalId: managedIdentity.properties.principalId
   }
 }
 

@@ -9,24 +9,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.17" />
-    <PackageReference Include="Azure.Identity" Version="1.12.0" />
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.0.0" />
+    <PackageReference Include="Azure.Identity" Version="1.13.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.OutputCaching.StackExchangeRedis" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.0-rc.2.24474.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0-rc.2.24474.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.0-rc.2.24474.3" />
+    <PackageReference Include="Microsoft.AspNetCore.OutputCaching.StackExchangeRedis" Version="9.0.0-rc.2.24474.3" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.0-preview2.24304.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0-rc.2.24474.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0-rc.2.24474.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="9.0.0-preview.9.24507.7" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0-rc.2.24473.5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.8" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.4" />
-    <PackageReference Include="NRedisStack" Version="0.12.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.0-rc.2.24474.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0-rc.2.24508.2" />
+    <PackageReference Include="NRedisStack" Version="0.13.0" />
     <PackageReference Include="System.Formats.Asn1" Version="9.0.0-rc.2.24473.5" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="System.Text.Json" Version="9.0.0-rc.2.24473.5" />
