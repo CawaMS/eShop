@@ -7,9 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplicationInsightsTelemetry();
-builder.Services.AddServiceProfiler();
-
 builder.Services.AddDbContext<eShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("eShopContext") ?? throw new InvalidOperationException("Connection string 'eShopContext' not found.")));
 
@@ -80,7 +77,8 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<eShopContext>();
-    context.Database.Migrate();
+    // context.Database.Migrate();
+    await eShopContextSeed.SeedAsync(context, app.Logger);
 }
 
 using (var scope = app.Services.CreateScope())
