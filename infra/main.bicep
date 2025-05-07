@@ -20,10 +20,6 @@ param location string
 // }
 param resourceGroupName string = ''
 
-param _userLogin string
-param _userObjectId string
-param _tenantId string
-
 
 var abbrs = loadJsonContent('./abbreviations.json')
 
@@ -61,9 +57,6 @@ module resources 'resources.bicep' = {
     location: location
     resourceToken: resourceToken
     tags: tags
-    userLogin:_userLogin
-    userObjectId:_userObjectId
-    tenantId:_tenantId
   }
 }
 

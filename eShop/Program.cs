@@ -3,12 +3,15 @@ using eShop.Interfaces;
 using eShop.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
+
+#pragma warning disable EXTEXP0018 // pragma warning for HybridCache
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationInsightsTelemetry();
+
+builder.Services.AddLogging();
 
 builder.Services.AddDbContext<eShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("eShopContext") ?? throw new InvalidOperationException("Connection string 'eShopContext' not found.")));
@@ -36,6 +39,8 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
     options.InstanceName = "eShopCache";
 });
+
+builder.Services.AddHybridCache();
 
 //Adding Session Provider, which automatically detects the configured IDistributedCache provider as the session store. In this case, Redis Cache
 builder.Services.AddSession(options =>

@@ -2,9 +2,6 @@ param name string
 param location string
 param resourceToken string
 param tags object
-param userLogin string
-param userObjectId string
-param tenantId string
 param openAiSku object = {
   name:'S0'
 }
@@ -139,7 +136,7 @@ resource databasePrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01'
 
 // added for Redis Cache
 resource privateDnsZoneCache 'Microsoft.Network/privateDnsZones@2020-06-01' = {
-  name: 'privatelink.redisenterprise.cache.azure.net'
+  name: 'privatelink.redis.azure.net'
   location: 'global'
   tags: tags
   dependsOn:[
@@ -150,7 +147,7 @@ resource privateDnsZoneCache 'Microsoft.Network/privateDnsZones@2020-06-01' = {
  //added for Redis Cache
 resource privateDnsZoneLinkCache 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
  parent: privateDnsZoneCache
- name: 'privatelink.redisenterprise.cache.azure.net-applink'
+ name: 'privatelink.redis.azure.net-applink'
  location: 'global'
  properties: {
    registrationEnabled: false
@@ -185,7 +182,7 @@ resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = 
     properties: {
       privateDnsZoneConfigs: [
         {
-          name: 'privatelink-redisenterprise-cache-azure-net'
+          name: 'privatelink-redis-azure-net'
           properties: {
             privateDnsZoneId: privateDnsZoneCache.id
           }
@@ -204,11 +201,15 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     serverFarmId: appServicePlan.id
     siteConfig: {
       alwaysOn: true
-      linuxFxVersion: 'DOTNETCORE|8.0'
+      linuxFxVersion: 'DOTNETCORE|9.0'
     }
     httpsOnly: true
   }
   identity: {
+    //type: 'UserAssigned'
+    //userAssignedIdentities: {
+    //  '${managedIdentity.id}': {}
+    //}
     type: 'SystemAssigned'
   }
   
@@ -316,6 +317,12 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03
   
 // }
 
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: 'mi-${resourceToken}'
+  location: location
+  tags: tags
+}
+
 resource sqlserver 'Microsoft.Sql/servers@2022-08-01-preview' = {
   location: location
   name:'${prefix}-sqlserver'
@@ -324,11 +331,12 @@ resource sqlserver 'Microsoft.Sql/servers@2022-08-01-preview' = {
     publicNetworkAccess:'Disabled'
     administrators: {
       administratorType: 'ActiveDirectory'
+      //login:managedIdentity.name
+      //sid: managedIdentity.properties.principalId
+      login: web.name
+      sid:web.identity.principalId
+      tenantId: subscription().tenantId
       azureADOnlyAuthentication: true
-      principalType: 'User'
-      login: userLogin
-      sid: userObjectId
-      tenantId: tenantId
     }
   }
   // resource sqlserverADOnlyAuth 'azureADOnlyAuthentications' = {
@@ -370,6 +378,7 @@ resource sqlDatabaseRoleAssignment 'Microsoft.Authorization/roleAssignments@2022
   scope: database
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
+    // principalId: managedIdentity.properties.principalId
     principalId: web.identity.principalId
   }
 }
@@ -383,19 +392,20 @@ module keyvault 'core/security/keyvault.bicep' = {
 }
 
 //added for Redis Cache
-resource redisCache 'Microsoft.Cache/redisEnterprise@2024-02-01' = {
+resource redisCache 'Microsoft.Cache/redisEnterprise@2025-04-01' = {
   location:location
   name:cacheServerName
   sku:{
-    capacity:2
-    name:'Enterprise_E10'
+    // capacity:2
+    name:'Balanced_B5'
   }
 }     
 
-resource redisdatabase 'Microsoft.Cache/redisEnterprise/databases@2024-02-01' = {
+resource redisdatabase 'Microsoft.Cache/redisEnterprise/databases@2025-04-01' = {
   name: 'default'
   parent: redisCache
   properties: {
+    accessKeysAuthentication: 'Enabled'
     evictionPolicy:'NoEviction'
     clusteringPolicy: 'EnterpriseCluster'
     modules: [
@@ -413,7 +423,7 @@ resource redisdatabase 'Microsoft.Cache/redisEnterprise/databases@2024-02-01' = 
 //azure open ai resource
 resource cognitiveAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   name: '${name}-csaccount'
-  location: location
+  location: 'australiaeast'
   tags: tags
   kind: 'OpenAI'
   properties: {
