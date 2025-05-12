@@ -237,7 +237,8 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
         type:'SQLAzure'
       }
       ESHOPREDISCONNECTION:{
-        value:'${redisCache.properties.hostName}:10000,password=${redisdatabase.listKeys().primaryKey},ssl=True,abortConnect=False'
+        //value:'${redisCache.properties.hostName}:10000,password=${redisdatabase.listKeys().primaryKey},ssl=True,abortConnect=False'
+        value:'${redisCache.properties.hostName}:10000,ssl=true'
         type: 'Custom'
       }
     }
@@ -419,6 +420,17 @@ resource redisdatabase 'Microsoft.Cache/redisEnterprise/databases@2025-04-01' = 
     port: redisPort
   }
 }
+
+resource redisAccessPolicyAssignmentName 'Microsoft.Cache/redisEnterprise/databases/accessPolicyAssignments@2025-04-01' = {
+  name: take('cachecontributor${uniqueString(resourceGroup().id)}', 24)
+  parent: redisdatabase
+  properties: {
+    accessPolicyName: 'default'
+    user: {
+      objectId: web.identity.principalId
+      }
+    }
+  }
 
 //azure open ai resource
 resource cognitiveAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' = {

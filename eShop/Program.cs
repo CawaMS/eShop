@@ -1,9 +1,11 @@
+using Azure.Identity;
 using eShop.Data;
 using eShop.Interfaces;
 using eShop.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 #pragma warning disable EXTEXP0018 // pragma warning for HybridCache
 
@@ -33,10 +35,17 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddAuthorization();
 
+//Adding for Entra ID authentication of Redis Cache
+ConfigurationOptions configurationOptions = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("eShopRedisConnection") ?? throw new InvalidOperationException("Could not find a 'eShopRedisConnection' connection string."));
+
+//Adding for Entra ID authentication of Redis Cache
+ConfigurationOptions AMRCacheOption = await configurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential());
+
 //Adding Redis Provider for IDistributedCache
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
+    // options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
+    options.ConfigurationOptions = AMRCacheOption;
     options.InstanceName = "eShopCache";
 });
 
@@ -52,7 +61,8 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddStackExchangeRedisOutputCache(options =>
 {
-    options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
+    // options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
+    options.ConfigurationOptions = AMRCacheOption;
     options.InstanceName = "eShopOutputCache";
 });
 
