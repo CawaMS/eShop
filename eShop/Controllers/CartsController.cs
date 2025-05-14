@@ -27,10 +27,14 @@ namespace eShop.Controllers
             string username = GetOrSetBasketCookieAndUserName();
             List<CartItem> CartItemList = await _cartService.GetCartItems(username).ToListAsync();
 
-            if (CartItemList.IsNullOrEmpty())
+            if (CartItemList == null || CartItemList.Count == 0)
             {
                 return View(ShoppingList);
             }
+            //if (CartItemList.IsNullOrEmpty())
+            //{
+            //    return View(ShoppingList);
+            //}
             else 
             {
                 foreach (var item in CartItemList)

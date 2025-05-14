@@ -27,7 +27,8 @@ namespace eShop.Services
             var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
             byte[] cartItemListByteArray = await _cache.GetAsync(GetCartItemListKey(username));
 
-            if (cartItemListByteArray.IsNullOrEmpty()) 
+            // if (cartItemListByteArray.IsNullOrEmpty()) 
+            if (cartItemListByteArray == null || cartItemListByteArray.Count() == 0)
             {
                 List<CartItem> cartItemList = new List<CartItem>();
                 CartItem cartItemToAdd = new CartItem(itemId, quantity, price);
@@ -87,7 +88,8 @@ namespace eShop.Services
 
             
             byte[] cartItemListByteArray = await _cache.GetAsync(GetCartItemListKey(anonymousName));
-            if (cartItemListByteArray.IsNullOrEmpty())
+            //if (cartItemListByteArray.IsNullOrEmpty())
+            if (cartItemListByteArray == null || cartItemListByteArray.Count() == 0  )
             {
                 return;
             }
@@ -109,8 +111,10 @@ namespace eShop.Services
             }
             byte[] cartItemslist = await _cache.GetAsync(GetCartItemListKey(username));
 
-            if (cartItemslist.IsNullOrEmpty())
+            //if (cartItemslist.IsNullOrEmpty())
+            if (cartItemslist == null || cartItemslist.Count() == 0)
             {
+                // return null;
                 yield break;
             }
             else 
@@ -134,8 +138,9 @@ namespace eShop.Services
             {
                 cartId = rand.Next();
                 userName = await _cache.GetStringAsync(cartId.ToString());
-            } 
-            while (!userName.IsNullOrEmpty());
+            }
+            // while (!userName.IsNullOrEmpty());
+            while (userName != null);
 
             return cartId;
         }

@@ -2,6 +2,7 @@
 using Azure.AI.OpenAI;
 using eShop.Models;
 using Microsoft.IdentityModel.Tokens;
+using Azure.Identity;
 using NRedisStack.Search.Literals.Enums;
 using NRedisStack.Search;
 using StackExchange.Redis;
@@ -19,7 +20,10 @@ public class DescriptionEmbeddings
         string? aoaiConnection = config["aoaiConnection"];
         string? aoaiKey = config["aoaiKey"];
         string? embeddingsDeploymentName = config["textEmbeddingsDeploymentName"];
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(redisConnection);
+        //ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(redisConnection);
+        var configurationOptions = await ConfigurationOptions.Parse(redisConnection).ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()); ;
+        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(configurationOptions);
+
         IDatabase db = redis.GetDatabase();
 
         //https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/embeddings?tabs=csharp
