@@ -36,16 +36,14 @@ builder.Services.AddRazorPages();
 builder.Services.AddAuthorization();
 
 //Adding for Entra ID authentication of Redis Cache
-ConfigurationOptions configurationOptions = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("eShopRedisConnection") ?? throw new InvalidOperationException("Could not find a 'eShopRedisConnection' connection string."));
+var configurationOptions = await ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("eShopRedisConnection") ?? throw new InvalidOperationException("Could not find a 'eShopRedisConnection' connection string.")).ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential());
 
-//Adding for Entra ID authentication of Redis Cache
-ConfigurationOptions AMRCacheOption = await configurationOptions.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential());
 
 //Adding Redis Provider for IDistributedCache
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     // options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
-    options.ConfigurationOptions = AMRCacheOption;
+    options.ConnectionMultiplexerFactory = async () => await ConnectionMultiplexer.ConnectAsync(configurationOptions);
     options.InstanceName = "eShopCache";
 });
 
@@ -62,7 +60,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddStackExchangeRedisOutputCache(options =>
 {
     // options.Configuration = builder.Configuration.GetConnectionString("eShopRedisConnection");
-    options.ConfigurationOptions = AMRCacheOption;
+    options.ConnectionMultiplexerFactory = async () => await ConnectionMultiplexer.ConnectAsync(configurationOptions);
     options.InstanceName = "eShopOutputCache";
 });
 
