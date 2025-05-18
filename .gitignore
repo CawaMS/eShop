@@ -3,3 +3,6 @@ eShop/bin
 eShop/obj
 eShop/eShop.csproj.user
 eShop/appsettings.Development.json
+eShop/.vs/
+eShop/Properties/PublishProfiles/
+eShop/Properties/ServiceDependencies/
