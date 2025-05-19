@@ -1,4 +1,5 @@
-﻿using eShop.Data;
+﻿using Azure.Identity;
+using eShop.Data;
 using eShop.Interfaces;
 using eShop.Models;
 using eShop.Services;
@@ -21,15 +22,15 @@ namespace eShop.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductService _productService;
-        private readonly ConnectionMultiplexer _redis;
+        //private readonly ConnectionMultiplexer _redis;
         private readonly IDatabase _db;
 
-        public HomeController(ILogger<HomeController> logger, IProductService productService, IConfiguration config)
+        public HomeController(ILogger<HomeController> logger, IProductService productService, IConfiguration config, ConnectionMultiplexer redis)
         {
             _logger = logger;
             _productService = productService;
-            _redis = ConnectionMultiplexer.Connect(config["ConnectionStrings:ESHOPREDISCONNECTION"]);
-            _db = _redis.GetDatabase();
+            // _redis = ConnectionMultiplexer.Connect(config["ConnectionStrings:ESHOPREDISCONNECTION"]);
+            _db = redis.GetDatabase();
 
         }
 

@@ -21,7 +21,7 @@ public class DescriptionEmbeddings
         string? aoaiKey = config["aoaiKey"];
         string? embeddingsDeploymentName = config["textEmbeddingsDeploymentName"];
         //ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(redisConnection);
-        var configurationOptions = await ConfigurationOptions.Parse(redisConnection).ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential()); ;
+        var configurationOptions = await ConfigurationOptions.Parse(redisConnection).ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential());
         ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(configurationOptions);
 
         IDatabase db = redis.GetDatabase();
