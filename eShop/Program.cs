@@ -64,6 +64,8 @@ builder.Services.AddStackExchangeRedisOutputCache(options =>
     options.InstanceName = "eShopOutputCache";
 });
 
+builder.Services.AddSingleton<ConnectionMultiplexer>(ConnectionMultiplexer.Connect(configurationOptions));
+
 //Using Redis Cache to implement services for optimizing data services performance
 builder.Services.AddScoped<ICartService,CartServiceCache>();
 
