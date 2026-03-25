@@ -6,6 +6,8 @@
 
 # Name of the application.
 name: eShop
+metadata: 
+  template: eshop
 services:
   web:
     project: eShop
